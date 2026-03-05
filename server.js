@@ -18,9 +18,12 @@ loadDotEnv(ENV_PATH);
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5";
 const OPENAI_BASE_URL = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
+const DATABASE_URL = process.env.DATABASE_URL || "";
 const MAX_HISTORY_MESSAGES = 12;
 const sessions = new Map();
 let inMemoryApplicationsData = null;
+let pgPool = null;
+let pgReadyPromise = null;
 const ALLOWED_STATUSES = new Set(["applied", "screening", "interview", "assessment", "offer", "rejected", "withdrawn"]);
 const APPLICATION_FIELDS = [
   "company",
@@ -245,6 +248,167 @@ function listApplicationsForApi(rawData) {
     .filter((app) => hasMeaningfulApplicationContent(app));
 }
 
+function databaseEnabled() {
+  return Boolean(DATABASE_URL);
+}
+
+async function ensureDatabase() {
+  if (!databaseEnabled()) return false;
+  if (pgReadyPromise) return pgReadyPromise;
+
+  pgReadyPromise = (async () => {
+    if (!pgPool) {
+      let Pool;
+      try {
+        ({ Pool } = require("pg"));
+      } catch {
+        throw new Error("DATABASE_URL is set, but 'pg' dependency is missing. Run: npm install");
+      }
+      pgPool = new Pool({
+        connectionString: DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+      });
+    }
+
+    await pgPool.query(`
+      CREATE TABLE IF NOT EXISTS applications (
+        id text PRIMARY KEY,
+        company text NOT NULL DEFAULT '',
+        role text NOT NULL DEFAULT '',
+        location text NOT NULL DEFAULT '',
+        date_applied text NOT NULL DEFAULT '',
+        status text NOT NULL DEFAULT 'applied',
+        source text NOT NULL DEFAULT '',
+        contact_person text NOT NULL DEFAULT '',
+        contact_email text NOT NULL DEFAULT '',
+        resume_version text NOT NULL DEFAULT '',
+        job_url text NOT NULL DEFAULT '',
+        follow_up_date text NOT NULL DEFAULT '',
+        salary_range text NOT NULL DEFAULT '',
+        notes text NOT NULL DEFAULT '',
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      )
+    `);
+
+    return true;
+  })().catch((err) => {
+    pgReadyPromise = null;
+    throw err;
+  });
+
+  return pgReadyPromise;
+}
+
+async function dbListApplications() {
+  await ensureDatabase();
+  const sql = `
+    SELECT id, company, role, location, date_applied, status, source, contact_person, contact_email, resume_version,
+           job_url, follow_up_date, salary_range, notes
+    FROM applications
+    ORDER BY
+      CASE WHEN date_applied = '' THEN 1 ELSE 0 END,
+      date_applied DESC,
+      updated_at DESC
+  `;
+  const { rows } = await pgPool.query(sql);
+  return rows.map((row) => sanitizeApplication(row, row.id));
+}
+
+async function dbCreateApplication(candidate) {
+  await ensureDatabase();
+  const app = sanitizeApplication(candidate);
+  const sql = `
+    INSERT INTO applications (
+      id, company, role, location, date_applied, status, source, contact_person, contact_email,
+      resume_version, job_url, follow_up_date, salary_range, notes
+    ) VALUES (
+      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+    )
+    RETURNING id, company, role, location, date_applied, status, source, contact_person, contact_email,
+              resume_version, job_url, follow_up_date, salary_range, notes
+  `;
+  const params = [
+    app.id,
+    app.company,
+    app.role,
+    app.location,
+    app.date_applied,
+    app.status,
+    app.source,
+    app.contact_person,
+    app.contact_email,
+    app.resume_version,
+    app.job_url,
+    app.follow_up_date,
+    app.salary_range,
+    app.notes
+  ];
+  const { rows } = await pgPool.query(sql, params);
+  return sanitizeApplication(rows[0], rows[0].id);
+}
+
+async function dbGetApplicationById(appId) {
+  await ensureDatabase();
+  const { rows } = await pgPool.query(
+    `SELECT id, company, role, location, date_applied, status, source, contact_person, contact_email,
+            resume_version, job_url, follow_up_date, salary_range, notes
+     FROM applications
+     WHERE id = $1`,
+    [appId]
+  );
+  if (!rows.length) return null;
+  return sanitizeApplication(rows[0], rows[0].id);
+}
+
+async function dbUpdateApplication(appId, mergedInput) {
+  const merged = sanitizeApplication(mergedInput, appId);
+  const sql = `
+    UPDATE applications SET
+      company = $2,
+      role = $3,
+      location = $4,
+      date_applied = $5,
+      status = $6,
+      source = $7,
+      contact_person = $8,
+      contact_email = $9,
+      resume_version = $10,
+      job_url = $11,
+      follow_up_date = $12,
+      salary_range = $13,
+      notes = $14,
+      updated_at = now()
+    WHERE id = $1
+    RETURNING id, company, role, location, date_applied, status, source, contact_person, contact_email,
+              resume_version, job_url, follow_up_date, salary_range, notes
+  `;
+  const params = [
+    appId,
+    merged.company,
+    merged.role,
+    merged.location,
+    merged.date_applied,
+    merged.status,
+    merged.source,
+    merged.contact_person,
+    merged.contact_email,
+    merged.resume_version,
+    merged.job_url,
+    merged.follow_up_date,
+    merged.salary_range,
+    merged.notes
+  ];
+  const { rows } = await pgPool.query(sql, params);
+  return rows.length ? sanitizeApplication(rows[0], rows[0].id) : null;
+}
+
+async function dbDeleteApplication(appId) {
+  await ensureDatabase();
+  const { rowCount } = await pgPool.query("DELETE FROM applications WHERE id = $1", [appId]);
+  return rowCount > 0;
+}
+
 function extractResumeSignals(resumeText) {
   const text = resumeText || "";
   const email = (text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}/) || [null])[0];
@@ -383,17 +547,18 @@ async function loadContext() {
     }
   }
 
-  if (inMemoryApplicationsData) {
-    contextCache.applicationsData = normalizeApplications(inMemoryApplicationsData);
-  } else if (fssync.existsSync(APPLICATIONS_PATH)) {
-    const appStat = await fs.stat(APPLICATIONS_PATH);
-    if (appStat.mtimeMs !== contextCache.applicationsMtimeMs) {
-      contextCache.applicationsMtimeMs = appStat.mtimeMs;
-      const raw = await fs.readFile(APPLICATIONS_PATH, "utf8");
-      const parsed = safeJsonParse(raw, { applications: [], application_advice: {} });
-      contextCache.applicationsData = normalizeApplications(parsed);
-    }
+  const rawData = await readApplicationsFileRaw();
+  const advice = rawData.application_advice || {};
+  let applications = [];
+  if (databaseEnabled()) {
+    applications = await dbListApplications();
+  } else {
+    applications = listApplicationsForApi(rawData);
   }
+  contextCache.applicationsData = {
+    applications,
+    application_advice: advice
+  };
 
   return {
     resumePath: contextCache.resumePath,
@@ -648,6 +813,7 @@ async function requestHandler(req, res) {
       sendJson(res, 200, {
         ok: true,
         model: OPENAI_MODEL,
+        storage: databaseEnabled() ? "postgres" : "json",
         resume_path: context.resumePath ? path.basename(context.resumePath) : null,
         applications_loaded: context.applicationsData.applications.length
       });
@@ -667,7 +833,7 @@ async function requestHandler(req, res) {
     if (req.method === "GET" && reqPath === "/api/applications") {
       const rawData = await readApplicationsFileRaw();
       sendJson(res, 200, {
-        applications: listApplicationsForApi(rawData),
+        applications: databaseEnabled() ? await dbListApplications() : listApplicationsForApi(rawData),
         application_advice: rawData.application_advice || {}
       });
       return;
@@ -678,6 +844,12 @@ async function requestHandler(req, res) {
       const candidate = sanitizeApplication(body);
       if (!candidate.company && !candidate.role) {
         sendJson(res, 400, { error: "company or role is required" });
+        return;
+      }
+
+      if (databaseEnabled()) {
+        const created = await dbCreateApplication(candidate);
+        sendJson(res, 201, { ok: true, application: created });
         return;
       }
 
@@ -694,6 +866,37 @@ async function requestHandler(req, res) {
       const appId = decodeURIComponent(reqPath.slice("/api/applications/".length)).trim();
       if (!appId) {
         sendJson(res, 400, { error: "application id is required" });
+        return;
+      }
+
+      if (databaseEnabled()) {
+        if (req.method === "DELETE") {
+          const deleted = await dbDeleteApplication(appId);
+          if (!deleted) {
+            sendJson(res, 404, { error: "application not found" });
+            return;
+          }
+          sendJson(res, 200, { ok: true });
+          return;
+        }
+
+        const body = await readRequestJson(req);
+        const existing = await dbGetApplicationById(appId);
+        if (!existing) {
+          sendJson(res, 404, { error: "application not found" });
+          return;
+        }
+        const mergedInput = sanitizeApplication({ ...existing, ...body }, appId);
+        if (!mergedInput.company && !mergedInput.role) {
+          sendJson(res, 400, { error: "company or role is required" });
+          return;
+        }
+        const updated = await dbUpdateApplication(appId, mergedInput);
+        if (!updated) {
+          sendJson(res, 404, { error: "application not found" });
+          return;
+        }
+        sendJson(res, 200, { ok: true, application: updated });
         return;
       }
 
