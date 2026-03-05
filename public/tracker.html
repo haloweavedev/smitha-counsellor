@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Applications Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,13 +36,17 @@
           linear-gradient(135deg, var(--bg), var(--bg2));
         color: var(--text);
         min-height: 100vh;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 84px);
       }
       .shell {
         max-width: 1300px;
         margin: 0 auto;
-        padding: 18px;
+        padding: 18px max(12px, env(safe-area-inset-right)) 18px max(12px, env(safe-area-inset-left));
       }
       .top {
+        position: sticky;
+        top: 8px;
+        z-index: 20;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -64,7 +68,13 @@
       .top a {
         color: var(--teal);
         text-decoration: none;
-        font-size: 0.9rem;
+        font-size: 0.86rem;
+        border: 1px solid rgba(45, 212, 191, 0.32);
+        border-radius: 999px;
+        min-height: 42px;
+        padding: 8px 12px;
+        display: inline-flex;
+        align-items: center;
       }
       .grid {
         margin-top: 14px;
@@ -104,7 +114,8 @@
         background: rgba(0, 0, 0, 0.17);
         color: var(--text);
         border-radius: 10px;
-        padding: 8px 10px;
+        padding: 10px 12px;
+        min-height: 44px;
       }
       textarea {
         min-height: 90px;
@@ -124,7 +135,8 @@
         border-radius: 10px;
         color: var(--text);
         background: rgba(0, 0, 0, 0.2);
-        padding: 8px 12px;
+        padding: 10px 12px;
+        min-height: 44px;
         cursor: pointer;
       }
       .btn-primary {
@@ -164,6 +176,49 @@
       }
       .table-wrap {
         overflow: auto;
+      }
+      .cards {
+        display: none;
+      }
+      .app-card {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 10px;
+        margin-top: 9px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .app-card-head {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .app-card-title {
+        font-size: 0.94rem;
+        font-weight: 700;
+      }
+      .app-card-role {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .app-card-meta {
+        margin-top: 8px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+        font-size: 0.79rem;
+        color: #cfe2ee;
+      }
+      .app-card-meta span {
+        color: var(--muted);
+        display: block;
+        font-size: 0.71rem;
+      }
+      .app-card-notes {
+        margin-top: 8px;
+        font-size: 0.8rem;
+        color: #c7dceb;
+        line-height: 1.45;
       }
       table {
         width: 100%;
@@ -227,12 +282,82 @@
         text-align: center;
         padding: 14px;
       }
+      .mobile-nav {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        bottom: calc(env(safe-area-inset-bottom) + 10px);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: rgba(7, 17, 26, 0.92);
+        backdrop-filter: blur(10px);
+        display: none;
+        z-index: 35;
+        padding: 8px;
+        gap: 8px;
+      }
+      .mobile-nav a {
+        flex: 1;
+        text-decoration: none;
+        color: var(--text);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        background: rgba(255, 255, 255, 0.04);
+      }
       @media (max-width: 1050px) {
         .grid {
           grid-template-columns: 1fr;
         }
         .kpis {
           grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 760px) {
+        .shell {
+          padding-top: 10px;
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+        .top {
+          top: 6px;
+          border-radius: 12px;
+          padding: 10px 11px;
+        }
+        .top a {
+          width: 100%;
+          justify-content: center;
+        }
+        .title {
+          font-size: 1.1rem;
+        }
+        .sub {
+          font-size: 0.82rem;
+        }
+        .two {
+          grid-template-columns: 1fr;
+        }
+        .actions {
+          flex-direction: column;
+        }
+        .actions .btn {
+          width: 100%;
+        }
+        .kpis {
+          grid-template-columns: 1fr 1fr;
+        }
+        .table-wrap {
+          display: none;
+        }
+        .cards {
+          display: block;
+        }
+        .mobile-nav {
+          display: flex;
         }
       }
     </style>
@@ -242,7 +367,7 @@
       <div class="top">
         <div>
           <div class="title">Applications Tracker</div>
-          <div class="sub">Add, edit, and delete entries in <code>applications.json</code> from this page.</div>
+          <div class="sub">Add, edit, and update application progress from your phone or desktop.</div>
         </div>
         <a href="/counseller">Back to Counseller</a>
       </div>
@@ -352,13 +477,19 @@
               <tbody id="rows"></tbody>
             </table>
           </div>
+          <div id="cards" class="cards"></div>
         </section>
       </div>
+      <nav class="mobile-nav">
+        <a href="/">Home</a>
+        <a href="/counseller">Counseller</a>
+      </nav>
     </div>
 
     <script>
       const form = document.getElementById("appForm");
       const rowsEl = document.getElementById("rows");
+      const cardsEl = document.getElementById("cards");
       const saveBtn = document.getElementById("saveBtn");
       const cancelEditBtn = document.getElementById("cancelEditBtn");
       const formStatus = document.getElementById("formStatus");
@@ -423,6 +554,7 @@
       function renderRows() {
         if (!applications.length) {
           rowsEl.innerHTML = '<tr><td class="empty" colspan="8">No applications yet. Add your first one from the form.</td></tr>';
+          cardsEl.innerHTML = '<div class="empty">No applications yet. Add your first one from the form.</div>';
           renderKpis();
           return;
         }
@@ -446,6 +578,33 @@
                 </div>
               </td>
             </tr>
+          `
+          )
+          .join("");
+
+        cardsEl.innerHTML = sorted
+          .map(
+            (app) => `
+            <article class="app-card">
+              <div class="app-card-head">
+                <div>
+                  <div class="app-card-title">${escapeHtml(app.company || "—")}</div>
+                  <div class="app-card-role">${escapeHtml(app.role || "—")}</div>
+                </div>
+                <span class="badge ${badgeClass(app.status)}">${escapeHtml(app.status || "applied")}</span>
+              </div>
+              <div class="app-card-meta">
+                <div><span>Applied</span>${formatDate(app.date_applied)}</div>
+                <div><span>Follow Up</span>${formatDate(app.follow_up_date)}</div>
+                <div><span>Source</span>${escapeHtml(app.source || "—")}</div>
+                <div><span>Location</span>${escapeHtml(app.location || "—")}</div>
+              </div>
+              <div class="app-card-notes">${escapeHtml((app.notes || "").slice(0, 140) || "—")}</div>
+              <div class="row-actions" style="margin-top:9px;">
+                <button class="btn" onclick="editApp('${app.id}')">Edit</button>
+                <button class="btn" onclick="deleteApp('${app.id}')">Delete</button>
+              </div>
+            </article>
           `
           )
           .join("");

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Smitha Career Hub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -29,11 +29,12 @@
           radial-gradient(60rem 25rem at -12% -15%, rgba(34, 211, 238, 0.24), transparent 62%),
           radial-gradient(50rem 22rem at 110% -20%, rgba(251, 146, 60, 0.2), transparent 60%),
           linear-gradient(120deg, var(--bg), var(--bg2));
+        padding-bottom: env(safe-area-inset-bottom);
       }
       .shell {
         max-width: 1100px;
         margin: 0 auto;
-        padding: 28px 20px;
+        padding: 28px max(14px, env(safe-area-inset-right)) 28px max(14px, env(safe-area-inset-left));
       }
       .hero {
         border: 1px solid var(--border);
@@ -90,11 +91,12 @@
         align-items: center;
         justify-content: center;
         border-radius: 999px;
-        padding: .55rem 1rem;
+        padding: .7rem 1.1rem;
         font-size: .86rem;
         text-decoration: none;
         font-weight: 700;
         border: 1px solid transparent;
+        min-height: 44px;
       }
       .btn-primary {
         color: #041018;
@@ -111,6 +113,11 @@
       }
       @media (max-width: 900px) {
         .grid { grid-template-columns: 1fr; }
+        .shell { padding-top: 14px; }
+        .hero { padding: 18px 14px; border-radius: 16px; }
+        .card { padding: 14px; }
+        .desc { min-height: 0; }
+        .btn { width: 100%; }
       }
     </style>
   </head>
@@ -130,7 +137,7 @@
         </article>
         <article class="card">
           <div class="title">Applications Tracker</div>
-          <div class="desc">Add, edit, and update progress directly into your `applications.json`.</div>
+          <div class="desc">Add, edit, and update progress with durable database-backed storage.</div>
           <a class="btn btn-secondary" href="/tracker">Open Tracker</a>
         </article>
       </section>
