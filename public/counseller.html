@@ -533,6 +533,11 @@
                 <option value="interview">Interview Prep</option>
                 <option value="networking">Networking & Follow-Ups</option>
               </select>
+              <label for="modelProfile" class="tiny" style="margin: 0">Speed</label>
+              <select id="modelProfile">
+                <option value="fast">Fast</option>
+                <option value="smart">Smart</option>
+              </select>
               <button class="btn" id="resetBtn">Reset Session</button>
             </div>
 
@@ -575,6 +580,7 @@
       const messageInput = document.getElementById("messageInput");
       const sendBtn = document.getElementById("sendBtn");
       const modeSelect = document.getElementById("modeSelect");
+      const modelProfileSelect = document.getElementById("modelProfile");
       const statusLine = document.getElementById("statusLine");
       const resetBtn = document.getElementById("resetBtn");
       let sessionId = "";
@@ -585,6 +591,7 @@
         el.textContent = content;
         chatLog.appendChild(el);
         chatLog.scrollTop = chatLog.scrollHeight;
+        return el;
       }
 
       function renderChips(targetId, values, emptyLabel) {
@@ -603,7 +610,7 @@
         const healthResp = await fetch("/api/health");
         const health = await healthResp.json();
         statusLine.textContent = health.ok
-          ? `Model: ${health.model} | Resume: ${health.resume_path || "not found"}`
+          ? `Smart: ${health.model} | Fast: ${health.fast_model} | Resume: ${health.resume_context_loaded ? "loaded" : "not loaded"}`
           : "Health check failed";
 
         const profileResp = await fetch("/api/profile");
@@ -637,26 +644,79 @@
 
       async function sendMessage(message) {
         sendBtn.disabled = true;
-        sendBtn.textContent = "Thinking...";
+        sendBtn.textContent = "Streaming...";
         addMessage("user", message);
+        const assistantEl = addMessage("assistant", "Thinking...");
 
         try {
-          const resp = await fetch("/api/chat", {
+          const resp = await fetch("/api/chat/stream", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               message,
               sessionId,
-              mode: modeSelect.value
+              mode: modeSelect.value,
+              modelProfile: modelProfileSelect.value
             })
           });
-          const data = await resp.json();
-          if (!resp.ok) throw new Error(data.error || "Failed to get advice");
-          sessionId = data.sessionId;
-          addMessage("assistant", data.answer);
-          statusLine.textContent = `Model: ${data.meta.model} | Resume chunks used: ${data.meta.resume_context_chunks} | Apps used: ${data.meta.relevant_applications}`;
+          if (!resp.ok || !resp.body) {
+            const fallback = await resp.json().catch(() => ({}));
+            throw new Error(fallback.error || "Failed to stream advice");
+          }
+
+          const reader = resp.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          let streamedText = "";
+
+          const handleSseEvent = (eventName, dataText) => {
+            if (!dataText) return;
+            let payload;
+            try {
+              payload = JSON.parse(dataText);
+            } catch {
+              return;
+            }
+            if (eventName === "meta") {
+              sessionId = payload.sessionId || sessionId;
+              statusLine.textContent =
+                `Model: ${payload.model} (${payload.model_profile}) | Resume chunks: ${payload.resume_context_chunks} | Apps: ${payload.relevant_applications} | Companies: ${payload.relevant_companies}`;
+            } else if (eventName === "chunk") {
+              const text = payload.text || "";
+              streamedText += text;
+              assistantEl.textContent = streamedText || "Thinking...";
+              chatLog.scrollTop = chatLog.scrollHeight;
+            } else if (eventName === "error") {
+              throw new Error(payload.error || "Streaming failed");
+            } else if (eventName === "done") {
+              sessionId = payload.sessionId || sessionId;
+            }
+          };
+
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const events = buffer.split("\n\n");
+            buffer = events.pop() || "";
+
+            for (const rawEvent of events) {
+              const lines = rawEvent.split("\n");
+              let eventName = "message";
+              let dataText = "";
+              for (const line of lines) {
+                if (line.startsWith("event:")) eventName = line.slice(6).trim();
+                if (line.startsWith("data:")) dataText += line.slice(5).trim();
+              }
+              handleSseEvent(eventName, dataText);
+            }
+          }
+
+          if (!assistantEl.textContent.trim()) {
+            assistantEl.textContent = "No response generated.";
+          }
         } catch (err) {
-          addMessage("assistant", `Error: ${err.message}`);
+          assistantEl.textContent = `Error: ${err.message}`;
         } finally {
           sendBtn.disabled = false;
           sendBtn.textContent = "Get Advice";
@@ -687,6 +747,14 @@
           const prompt = btn.getAttribute("data-prompt");
           await sendMessage(prompt);
         });
+      });
+
+      const savedModelProfile = localStorage.getItem("modelProfile");
+      if (savedModelProfile && ["fast", "smart"].includes(savedModelProfile)) {
+        modelProfileSelect.value = savedModelProfile;
+      }
+      modelProfileSelect.addEventListener("change", () => {
+        localStorage.setItem("modelProfile", modelProfileSelect.value);
       });
 
       async function init() {

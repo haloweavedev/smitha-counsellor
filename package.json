@@ -9,6 +9,8 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.41",
+    "ai": "^6.0.116",
     "pg": "^8.13.3"
   },
   "engines": {

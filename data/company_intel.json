@@ -1,0 +1,23 @@
+{
+  "source_note": "Curated S&P 500 AI/biotech/healthtech targets for personalized application advice.",
+  "companies": [
+    {"name":"Eli Lilly","ticker":"LLY","sector":"Biotech/Pharma","ai_focus":true,"india_presence":true,"roles":["Research Associate","Scientist I","Computational Biologist"]},
+    {"name":"Thermo Fisher Scientific","ticker":"TMO","sector":"Life Sciences Tools","ai_focus":false,"india_presence":true,"roles":["Research Associate","Applications Scientist","Product Specialist"]},
+    {"name":"Illumina","ticker":"ILMN","sector":"Genomics","ai_focus":true,"india_presence":true,"roles":["Genomics Applications Scientist","Bioinformatics Analyst","Field Applications Scientist"]},
+    {"name":"Danaher","ticker":"DHR","sector":"Life Sciences Tools","ai_focus":false,"india_presence":true,"roles":["R&D Associate","Application Specialist","Quality Analyst"]},
+    {"name":"Abbott","ticker":"ABT","sector":"Diagnostics","ai_focus":false,"india_presence":true,"roles":["Diagnostics Scientist","R&D Associate","Clinical Applications Specialist"]},
+    {"name":"Becton Dickinson","ticker":"BDX","sector":"Diagnostics","ai_focus":false,"india_presence":true,"roles":["R&D Associate","Diagnostics Scientist","Product Applications Specialist"]},
+    {"name":"Regeneron","ticker":"REGN","sector":"Biotech","ai_focus":true,"india_presence":false,"roles":["Research Associate","Protein Sciences Scientist","Genomics Analyst"]},
+    {"name":"Vertex Pharmaceuticals","ticker":"VRTX","sector":"Biotech","ai_focus":true,"india_presence":false,"roles":["Research Associate","Gene Editing Scientist","Cell Biology Scientist"]},
+    {"name":"Amgen","ticker":"AMGN","sector":"Biologics","ai_focus":true,"india_presence":true,"roles":["Research Associate","Protein Engineering Scientist","Process Development Associate"]},
+    {"name":"Pfizer","ticker":"PFE","sector":"Pharma","ai_focus":true,"india_presence":true,"roles":["Research Associate","mRNA Scientist","Clinical Development Associate"]},
+    {"name":"Merck & Co.","ticker":"MRK","sector":"Pharma","ai_focus":true,"india_presence":true,"roles":["Research Scientist","Clinical Development Associate","Bioinformatics Analyst"]},
+    {"name":"Gilead Sciences","ticker":"GILD","sector":"Biopharma","ai_focus":true,"india_presence":false,"roles":["Virology Research Associate","mRNA Research Associate","Computational Biologist"]},
+    {"name":"Agilent Technologies","ticker":"A","sector":"Life Sciences Tools","ai_focus":true,"india_presence":true,"roles":["Field Application Scientist","R&D Scientist","Genomics Applications Specialist"]},
+    {"name":"Waters Corporation","ticker":"WAT","sector":"Analytical Instruments","ai_focus":false,"india_presence":true,"roles":["Applications Specialist","Service Scientist","Chromatography Specialist"]},
+    {"name":"IQVIA","ticker":"IQV","sector":"CRO/Health Data","ai_focus":true,"india_presence":true,"roles":["Clinical Research Associate","Data Analyst","Medical Science Liaison"]},
+    {"name":"Microsoft","ticker":"MSFT","sector":"AI/Cloud","ai_focus":true,"india_presence":true,"roles":["Life Sciences Technical Specialist","Health Cloud Analyst","Research Engineer"]},
+    {"name":"Alphabet","ticker":"GOOGL","sector":"AI Research","ai_focus":true,"india_presence":true,"roles":["Research Analyst","Biology Data Analyst","Bioinformatics Engineer"]},
+    {"name":"NVIDIA","ticker":"NVDA","sector":"AI Infrastructure","ai_focus":true,"india_presence":true,"roles":["Healthcare AI Specialist","BioNeMo Applications Engineer","Solutions Architect"]}
+  ]
+}

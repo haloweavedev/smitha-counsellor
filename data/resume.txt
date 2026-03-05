@@ -1,0 +1,108 @@
+Smitha Sandrina
+Bangalore, India
+Gmail: smithasandrina7@gmail.com ⋄ Phone: +91 9036483988
+LinkedIn: linkedin.com/in/smitha-sandrina-b177b9252
+
+
+Professional Summary
+Pursuing M. Sc in Molecular and Cellular Biology with experience in molecular techniques, research support, and
+scientific documentation. Worked on cloning- and modeling-based academic projects while contributing to content
+development, research summaries, and workflow coordination across multiple organisations. Motivated to contribute
+laboratory understanding and scientific documentation skills to industry settings, particularly in product development,
+safety evaluation, and research-driven decision-making.
+
+
+
+Core Skills
+Laboratory & Diagnostics — ELISA, Widal, Gram staining, sample processing, biosafety practices, basic clinical
+diagnostic workflows.
+
+Molecular Biology Techniques — PCR, agarose gel electrophoresis , chromatography techniques, plasmid miniprep,
+thermocycler-based reactions, UV trans-illuminator, nanodrop quantification.
+
+Microbiology & Research — Microbial plating & handling, culture-based techniques, experimental interpretation,
+literature review, scientific analysis.
+
+Bioinformatics Tools — BLAST, FASTA, SWISS-MODEL, PyMOL, CollabFold, SnapGene, Primer3Plus, Clustal
+Omega, Cytoscape, MEGA12.
+Computational Tools — Python, R-programming, Foundational Cloud Computing, LaTeX, MS-Excel, Word, Pow-
+erPoint.
+
+Documentation & Communication — Scientific writing and communication, SOP drafting, research summaries,
+academic documentation, clarity-focused editing, accuracy-driven reporting.
+
+Soft Skills — Strong documentation discipline, clear scientific communication, fast learner, accuracy in task execution,
+collaborative workflow experience, and consistent follow-up on assigned responsibilities.
+
+
+Experience
+Content Writing Intern — AdmitMentors, Bengaluru                                                  Feb 2024 – Jun 2025
+
+• Edited and structured 100+ SOPs, LORs, and academic documents for international admissions.
+• Enhanced content flow and accuracy, reducing student revision cycles by 30–40%.
+• Managed documentation pipelines for 20+ global programs, ensuring compliance with university standards.
+
+Growth Manager Intern — Medivirt Healthcare                                                      May 2024 – Sep 2024
+
+• Coordinated onboarding for 10+ healthcare professionals through structured documentation and verification.
+• Supported daily operational workflows, improving task turnaround by 10–15%.
+
+Research Intern — Ioncure, Bengaluru                                                              Oct 2024 – Dec 2024
+
+• Reviewed 15+ articles on gut microbiome–serotonin pathways and organized research insights.
+• Generated scientific briefs that supported hypothesis development and R&D decision-making.
+
+Clinical Laboratory Intern — Rashi Diagnostics, Bengaluru                                    5 Jan 2023 – 20 Jan 2023
+
+• Processed 10–15 samples/day including Widal and other staining-based diagnostics.
+• Documented sample records with 100% accuracy, ensuring compliance with laboratory logging standards.
+Education
+M.Sc. Molecular and Cellular Biology                                                                     Expected 2026
+MS Ramaiah University of Applied Sciences, Bengaluru · SGPA for Sem I, II & III: 9.58
+
+B.Sc. Microbiology, Biochemistry & Genetics — First Rank Holder                                                    2023
+Kristu Jayanti College, Bengaluru · CGPA: 9.5
+
+
+
+Projects
+Cloning, Expression and Purification of Recombinant Nipah Virus G Glycoprotein in E. coli
+Successfully completed cloning and transformation of the Nipah G-gene into a pGEX vector system, obtaining five
+confirmed positive clones. Initiated recombinant protein expression in E. coli BL21; however, SDS-PAGE analysis
+yielded inconclusive results, and protein expression could not be confirmed.
+
+Analysis and Modeling of Cas9 Protein from an Uncultured Organism
+Performed sequence comparison and 3D modeling using BLAST, Clustal Omega, and SWISS-MODEL, identifying
+conserved nuclease domains.
+
+Study of Specific Spices in Microbial Extermination and Organic Media Colonization
+Tested antimicrobial effects of spice extracts using agar well diffusion and evaluated microbial growth on kitchen-waste
+organic media.
+
+Python Web-Scraping Mini Project
+Built a Python script using BeautifulSoup to extract and structure data from web sources.
+
+
+
+Certifications
+• NPTEL: Immunology — Elite + Silver
+• Bioreactors Certification
+• AWS Cloud Practitioner
+• Python for AI
+• AI Tools Workshop
+
+
+
+Leadership & Achievements
+• General Secretary, Women’s Empowerment Cell
+• Best Outgoing Student, Life Sciences (2023)
+• School Vice-Captain
+• Master of Ceremony for academic events
+• District/Taluk Level Handball — Runners-Up
+
+
+
+Additional Information
+Interested in opportunities across industrial R&D and clinical research, including both laboratory-based and documentation-
+driven roles that support scientific analysis and data-backed decision-making.
+

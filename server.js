@@ -11,12 +11,15 @@ const ROOT = process.cwd();
 const PUBLIC_DIR = path.join(ROOT, "public");
 const ENV_PATH = path.join(ROOT, ".env");
 const APPLICATIONS_PATH = path.join(ROOT, "applications.json");
+const RESUME_FALLBACK_PATH = path.join(ROOT, "data", "resume.txt");
+const COMPANY_INTEL_PATH = path.join(ROOT, "data", "company_intel.json");
 const PORT = Number(process.env.PORT || 3010);
 
 loadDotEnv(ENV_PATH);
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5";
+const OPENAI_FAST_MODEL = process.env.OPENAI_FAST_MODEL || "gpt-4.1-mini";
 const OPENAI_BASE_URL = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
 const DATABASE_URL = process.env.DATABASE_URL || "";
 const MAX_HISTORY_MESSAGES = 12;
@@ -24,6 +27,8 @@ const sessions = new Map();
 let inMemoryApplicationsData = null;
 let pgPool = null;
 let pgReadyPromise = null;
+let aiSdkModules = null;
+let companyIntelCache = null;
 const ALLOWED_STATUSES = new Set(["applied", "screening", "interview", "assessment", "offer", "rejected", "withdrawn"]);
 const APPLICATION_FIELDS = [
   "company",
@@ -246,6 +251,50 @@ function listApplicationsForApi(rawData) {
     .filter((app) => !app._comment)
     .map((app) => sanitizeApplication(app, getStoredAppId(app)))
     .filter((app) => hasMeaningfulApplicationContent(app));
+}
+
+async function loadAiSdk() {
+  if (aiSdkModules) return aiSdkModules;
+  const [{ generateText, streamText }, { createOpenAI }] = await Promise.all([import("ai"), import("@ai-sdk/openai")]);
+  const openai = createOpenAI({
+    apiKey: OPENAI_API_KEY,
+    baseURL: OPENAI_BASE_URL
+  });
+  aiSdkModules = { generateText, streamText, openai };
+  return aiSdkModules;
+}
+
+async function loadCompanyIntel() {
+  if (companyIntelCache) return companyIntelCache;
+  if (!fssync.existsSync(COMPANY_INTEL_PATH)) {
+    companyIntelCache = [];
+    return companyIntelCache;
+  }
+  const raw = await fs.readFile(COMPANY_INTEL_PATH, "utf8");
+  const parsed = safeJsonParse(raw, { companies: [] });
+  const companies = Array.isArray(parsed?.companies) ? parsed.companies : [];
+  companyIntelCache = companies.filter((c) => c && typeof c === "object");
+  return companyIntelCache;
+}
+
+function pickModelId(modelProfile) {
+  return String(modelProfile || "smart").toLowerCase() === "fast" ? OPENAI_FAST_MODEL : OPENAI_MODEL;
+}
+
+function getRelevantCompanies(question, companies, maxItems = 8) {
+  const q = String(question || "").trim();
+  if (!q) return companies.slice(0, maxItems);
+  const ranked = companies
+    .map((company) => {
+      const combined = `${company.name} ${company.ticker} ${company.sector} ${(company.roles || []).join(" ")} ${company.ai_focus ? "ai" : ""} ${
+        company.india_presence ? "india" : ""
+      }`;
+      return { company, score: scoreTextByQuery(combined, q) };
+    })
+    .sort((a, b) => b.score - a.score);
+  const selected = ranked.filter((item) => item.score > 0).slice(0, maxItems).map((item) => item.company);
+  if (selected.length) return selected;
+  return companies.slice(0, maxItems);
 }
 
 function databaseEnabled() {
@@ -547,6 +596,18 @@ async function loadContext() {
     }
   }
 
+  if (!contextCache.resumeText && fssync.existsSync(RESUME_FALLBACK_PATH)) {
+    try {
+      const fallbackResume = await fs.readFile(RESUME_FALLBACK_PATH, "utf8");
+      if (fallbackResume.trim()) {
+        contextCache.resumeText = fallbackResume;
+        contextCache.resumeChunks = chunkText(contextCache.resumeText);
+      }
+    } catch {
+      // keep running without fallback resume context
+    }
+  }
+
   const rawData = await readApplicationsFileRaw();
   const advice = rawData.application_advice || {};
   let applications = [];
@@ -559,11 +620,19 @@ async function loadContext() {
     applications,
     application_advice: advice
   };
+  const companyIntel = await loadCompanyIntel();
+  const resumeSource = contextCache.resumePath
+    ? path.basename(contextCache.resumePath)
+    : contextCache.resumeText
+      ? path.relative(ROOT, RESUME_FALLBACK_PATH)
+      : null;
 
   return {
     resumePath: contextCache.resumePath,
+    resumeSource,
     resumeText: contextCache.resumeText,
     resumeChunks: contextCache.resumeChunks,
+    companyIntel,
     applicationsData: contextCache.applicationsData,
     profile: buildProfileSnapshot({
       resumeText: contextCache.resumeText,
@@ -636,121 +705,130 @@ function buildModePrompt(mode) {
   return "Focus on highest-ROI career strategy across resume, applications, outreach, and interview readiness.";
 }
 
-async function callOpenAI({
+function buildContextBlock({ profile, relevantApplications, applicationAdvice, relevantResumeChunks, relevantCompanies }) {
+  return [
+    "Candidate profile:",
+    JSON.stringify(profile, null, 2),
+    "",
+    "Current applications relevant to this request:",
+    JSON.stringify(relevantApplications, null, 2),
+    "",
+    "S&P500 AI/Biotech company intelligence relevant to this request:",
+    JSON.stringify(relevantCompanies, null, 2),
+    "",
+    "Existing application advice preferences/checklists:",
+    JSON.stringify(applicationAdvice || {}, null, 2),
+    "",
+    "Relevant resume excerpts:",
+    relevantResumeChunks.join("\n\n---\n\n")
+  ].join("\n");
+}
+
+function buildPromptMessages({
   message,
   mode,
   sessionHistory,
   profile,
   relevantApplications,
   relevantResumeChunks,
+  relevantCompanies,
+  applicationAdvice
+}) {
+  const messages = [];
+  messages.push({ role: "system", content: buildSystemPrompt() });
+  messages.push({ role: "system", content: buildModePrompt(mode) });
+  messages.push({
+    role: "user",
+    content: buildContextBlock({
+      profile,
+      relevantApplications,
+      applicationAdvice,
+      relevantResumeChunks,
+      relevantCompanies
+    })
+  });
+  for (const item of sessionHistory.slice(-MAX_HISTORY_MESSAGES)) {
+    messages.push({
+      role: item.role,
+      content: item.content
+    });
+  }
+  messages.push({ role: "user", content: message });
+  return messages;
+}
+
+async function callOpenAI({
+  message,
+  mode,
+  modelProfile,
+  sessionHistory,
+  profile,
+  relevantApplications,
+  relevantCompanies,
+  relevantResumeChunks,
   applicationAdvice
 }) {
   if (!OPENAI_API_KEY) {
     throw new Error("OPENAI_API_KEY is missing in .env");
   }
+  const { generateText, openai } = await loadAiSdk();
   const maxOutputTokens = Number(process.env.MAX_OUTPUT_TOKENS || 2200);
-  const reasoningEffort = process.env.OPENAI_REASONING_EFFORT || "minimal";
-
-  const input = [];
-  input.push({ role: "system", content: [{ type: "input_text", text: buildSystemPrompt() }] });
-  input.push({ role: "system", content: [{ type: "input_text", text: buildModePrompt(mode) }] });
-  input.push({
-    role: "user",
-    content: [
-      {
-        type: "input_text",
-        text: [
-          "Candidate profile:",
-          JSON.stringify(profile, null, 2),
-          "",
-          "Current applications relevant to this request:",
-          JSON.stringify(relevantApplications, null, 2),
-          "",
-          "Existing application advice preferences/checklists:",
-          JSON.stringify(applicationAdvice || {}, null, 2),
-          "",
-          "Relevant resume excerpts:",
-          relevantResumeChunks.join("\n\n---\n\n")
-        ].join("\n")
-      }
-    ]
+  const modelId = pickModelId(modelProfile);
+  const messages = buildPromptMessages({
+    message,
+    mode,
+    sessionHistory,
+    profile,
+    relevantApplications,
+    relevantResumeChunks,
+    relevantCompanies,
+    applicationAdvice
   });
-
-  for (const item of sessionHistory.slice(-MAX_HISTORY_MESSAGES)) {
-    input.push({
-      role: item.role,
-      content: [{ type: "input_text", text: item.content }]
-    });
-  }
-
-  input.push({
-    role: "user",
-    content: [{ type: "input_text", text: message }]
+  const result = await generateText({
+    model: openai(modelId),
+    messages,
+    maxOutputTokens: Number.isFinite(maxOutputTokens) ? maxOutputTokens : 2200
   });
-
-  const payload = {
-    model: OPENAI_MODEL,
-    reasoning: { effort: reasoningEffort },
-    input,
-    max_output_tokens: Number.isFinite(maxOutputTokens) ? maxOutputTokens : 2200
-  };
-
-  const response = await fetch(`${OPENAI_BASE_URL}/responses`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`OpenAI API error ${response.status}: ${errorBody}`);
-  }
-
-  const data = await response.json();
-  const text = extractResponseText(data);
+  const text = String(result.text || "").trim();
   if (!text) {
     throw new Error("Model response did not include text output.");
   }
-  return { text, raw: data };
+  return { text, modelId };
 }
 
-function extractResponseText(data) {
-  if (typeof data.output_text === "string" && data.output_text.trim()) {
-    return data.output_text.trim();
+async function streamOpenAIText({
+  message,
+  mode,
+  modelProfile,
+  sessionHistory,
+  profile,
+  relevantApplications,
+  relevantCompanies,
+  relevantResumeChunks,
+  applicationAdvice
+}) {
+  if (!OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY is missing in .env");
   }
-
-  const output = Array.isArray(data.output) ? data.output : [];
-  const parts = [];
-  for (const item of output) {
-    if (item?.type === "reasoning" && Array.isArray(item.summary)) {
-      for (const summaryPart of item.summary) {
-        if (typeof summaryPart?.text === "string" && summaryPart.text.trim()) {
-          parts.push(summaryPart.text);
-        }
-      }
-    }
-
-    const content = Array.isArray(item?.content) ? item.content : [];
-    for (const c of content) {
-      if (c?.type === "output_text" || c?.type === "text" || c?.type === "summary_text") {
-        if (typeof c.text === "string" && c.text.trim()) {
-          parts.push(c.text);
-          continue;
-        }
-        if (c?.text && typeof c.text.value === "string" && c.text.value.trim()) {
-          parts.push(c.text.value);
-          continue;
-        }
-      }
-      if (c?.type === "refusal" && typeof c.refusal === "string" && c.refusal.trim()) {
-        parts.push(c.refusal);
-      }
-    }
-  }
-  return parts.join("\n").trim();
+  const { streamText, openai } = await loadAiSdk();
+  const maxOutputTokens = Number(process.env.MAX_OUTPUT_TOKENS || 2200);
+  const modelId = pickModelId(modelProfile);
+  const messages = buildPromptMessages({
+    message,
+    mode,
+    sessionHistory,
+    profile,
+    relevantApplications,
+    relevantResumeChunks,
+    relevantCompanies,
+    applicationAdvice
+  });
+  const result = streamText({
+    model: openai(modelId),
+    messages,
+    maxOutputTokens: Number.isFinite(maxOutputTokens) ? maxOutputTokens : 2200
+  });
+  return { textStream: result.textStream, modelId };
 }
 
 function sendJson(res, statusCode, payload) {
@@ -813,8 +891,10 @@ async function requestHandler(req, res) {
       sendJson(res, 200, {
         ok: true,
         model: OPENAI_MODEL,
+        fast_model: OPENAI_FAST_MODEL,
         storage: databaseEnabled() ? "postgres" : "json",
-        resume_path: context.resumePath ? path.basename(context.resumePath) : null,
+        resume_source: context.resumeSource,
+        resume_context_loaded: context.resumeChunks.length > 0,
         applications_loaded: context.applicationsData.applications.length
       });
       return;
@@ -824,6 +904,7 @@ async function requestHandler(req, res) {
       const context = await loadContext();
       sendJson(res, 200, {
         profile: context.profile,
+        company_intel_count: (context.companyIntel || []).length,
         application_advice: context.applicationsData.application_advice || {},
         applications: context.applicationsData.applications
       });
@@ -931,8 +1012,9 @@ async function requestHandler(req, res) {
 
     if (req.method === "POST" && reqPath === "/api/chat") {
       const body = await readRequestJson(req);
-      const message = String(body.message || "").trim();
+      const message = String(body.message || body.query || "").trim();
       const mode = String(body.mode || "general");
+      const modelProfile = String(body.modelProfile || "smart").toLowerCase();
       if (!message) {
         sendJson(res, 400, { error: "message is required" });
         return;
@@ -943,13 +1025,16 @@ async function requestHandler(req, res) {
       const session = sessions.get(sessionId) || [];
       const relevantApplications = getRelevantApplications(message, context.applicationsData.applications, 6);
       const relevantResumeChunks = getRelevantResumeChunks(message, context.resumeChunks, 3);
+      const relevantCompanies = getRelevantCompanies(message, context.companyIntel || [], 8);
 
       const result = await callOpenAI({
         message,
         mode,
+        modelProfile,
         sessionHistory: session,
         profile: context.profile,
         relevantApplications,
+        relevantCompanies,
         relevantResumeChunks,
         applicationAdvice: context.applicationsData.application_advice
       });
@@ -965,11 +1050,85 @@ async function requestHandler(req, res) {
         sessionId,
         answer: result.text,
         meta: {
-          model: OPENAI_MODEL,
+          model: result.modelId,
+          model_profile: modelProfile,
           relevant_applications: relevantApplications.length,
+          relevant_companies: relevantCompanies.length,
           resume_context_chunks: relevantResumeChunks.length
         }
       });
+      return;
+    }
+
+    if (req.method === "POST" && reqPath === "/api/chat/stream") {
+      const body = await readRequestJson(req);
+      const message = String(body.message || body.query || "").trim();
+      const mode = String(body.mode || "general");
+      const modelProfile = String(body.modelProfile || "smart").toLowerCase();
+      if (!message) {
+        sendJson(res, 400, { error: "message is required" });
+        return;
+      }
+
+      const context = await loadContext();
+      const sessionId = String(body.sessionId || crypto.randomUUID());
+      const session = sessions.get(sessionId) || [];
+      const relevantApplications = getRelevantApplications(message, context.applicationsData.applications, 6);
+      const relevantResumeChunks = getRelevantResumeChunks(message, context.resumeChunks, 3);
+      const relevantCompanies = getRelevantCompanies(message, context.companyIntel || [], 8);
+
+      try {
+        const streamResult = await streamOpenAIText({
+          message,
+          mode,
+          modelProfile,
+          sessionHistory: session,
+          profile: context.profile,
+          relevantApplications,
+          relevantCompanies,
+          relevantResumeChunks,
+          applicationAdvice: context.applicationsData.application_advice
+        });
+
+        res.writeHead(200, {
+          "Content-Type": "text/event-stream; charset=utf-8",
+          "Cache-Control": "no-cache, no-transform",
+          Connection: "keep-alive"
+        });
+
+        res.write(`event: meta\ndata: ${JSON.stringify({
+          sessionId,
+          model: streamResult.modelId,
+          model_profile: modelProfile,
+          relevant_applications: relevantApplications.length,
+          relevant_companies: relevantCompanies.length,
+          resume_context_chunks: relevantResumeChunks.length
+        })}\n\n`);
+
+        let fullText = "";
+        for await (const chunk of streamResult.textStream) {
+          if (!chunk) continue;
+          fullText += chunk;
+          res.write(`event: chunk\ndata: ${JSON.stringify({ text: chunk })}\n\n`);
+        }
+
+        const updatedSession = [
+          ...session,
+          { role: "user", content: message },
+          { role: "assistant", content: fullText.trim() }
+        ].slice(-MAX_HISTORY_MESSAGES);
+        sessions.set(sessionId, updatedSession);
+
+        res.write(`event: done\ndata: ${JSON.stringify({ sessionId })}\n\n`);
+        res.end();
+      } catch (err) {
+        if (!res.headersSent) {
+          sendJson(res, 500, { error: err instanceof Error ? err.message : "Streaming failed" });
+          return;
+        }
+        res.write(`event: error\ndata: ${JSON.stringify({ error: err instanceof Error ? err.message : "Streaming failed" })}\n\n`);
+        res.end();
+      }
       return;
     }
 
