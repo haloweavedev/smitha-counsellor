@@ -585,10 +585,34 @@
       const resetBtn = document.getElementById("resetBtn");
       let sessionId = "";
 
+      function escapeHtml(text) {
+        return String(text || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function renderMarkdown(text) {
+        const escaped = escapeHtml(text);
+        return escaped
+          .replace(/\*\*([\s\S]+?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\n/g, "<br>");
+      }
+
+      function setMessageContent(el, role, content) {
+        if (role === "assistant") {
+          el.innerHTML = renderMarkdown(content);
+          return;
+        }
+        el.textContent = content;
+      }
+
       function addMessage(role, content) {
         const el = document.createElement("div");
         el.className = `msg ${role}`;
-        el.textContent = content;
+        setMessageContent(el, role, content);
         chatLog.appendChild(el);
         chatLog.scrollTop = chatLog.scrollHeight;
         return el;
@@ -684,7 +708,7 @@
             } else if (eventName === "chunk") {
               const text = payload.text || "";
               streamedText += text;
-              assistantEl.textContent = streamedText || "Thinking...";
+              setMessageContent(assistantEl, "assistant", streamedText || "Thinking...");
               chatLog.scrollTop = chatLog.scrollHeight;
             } else if (eventName === "error") {
               throw new Error(payload.error || "Streaming failed");
@@ -713,10 +737,10 @@
           }
 
           if (!assistantEl.textContent.trim()) {
-            assistantEl.textContent = "No response generated.";
+            setMessageContent(assistantEl, "assistant", "No response generated.");
           }
         } catch (err) {
-          assistantEl.textContent = `Error: ${err.message}`;
+          setMessageContent(assistantEl, "assistant", `Error: ${err.message}`);
         } finally {
           sendBtn.disabled = false;
           sendBtn.textContent = "Get Advice";
