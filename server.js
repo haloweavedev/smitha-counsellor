@@ -20,6 +20,7 @@ const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5";
 const OPENAI_BASE_URL = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
 const MAX_HISTORY_MESSAGES = 12;
 const sessions = new Map();
+let inMemoryApplicationsData = null;
 const ALLOWED_STATUSES = new Set(["applied", "screening", "interview", "assessment", "offer", "rejected", "withdrawn"]);
 const APPLICATION_FIELDS = [
   "company",
@@ -128,6 +129,10 @@ function safeJsonParse(raw, fallback) {
   }
 }
 
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
 function ensureApplicationsTemplate(rawData) {
   const base = rawData && typeof rawData === "object" ? { ...rawData } : {};
   if (!Array.isArray(base.applications)) base.applications = [];
@@ -199,6 +204,9 @@ function serializeApplicationsFile(rawData) {
 }
 
 async function readApplicationsFileRaw() {
+  if (inMemoryApplicationsData) {
+    return ensureApplicationsTemplate(cloneJson(inMemoryApplicationsData));
+  }
   if (!fssync.existsSync(APPLICATIONS_PATH)) {
     return ensureApplicationsTemplate({ applications: [], application_advice: {} });
   }
@@ -211,8 +219,21 @@ async function readApplicationsFileRaw() {
 }
 
 async function writeApplicationsFileRaw(rawData) {
-  await fs.writeFile(APPLICATIONS_PATH, serializeApplicationsFile(rawData), "utf8");
-  contextCache.applicationsMtimeMs = 0;
+  const safeData = ensureApplicationsTemplate(rawData);
+  try {
+    await fs.writeFile(APPLICATIONS_PATH, serializeApplicationsFile(safeData), "utf8");
+    inMemoryApplicationsData = null;
+    contextCache.applicationsMtimeMs = 0;
+  } catch (err) {
+    const isReadonlyFs = err && typeof err === "object" && ["EROFS", "EACCES", "EPERM"].includes(err.code);
+    if (isReadonlyFs) {
+      // Vercel serverless has a read-only project filesystem. Keep session-local state.
+      inMemoryApplicationsData = cloneJson(safeData);
+      contextCache.applicationsMtimeMs = 0;
+      return;
+    }
+    throw err;
+  }
 }
 
 function listApplicationsForApi(rawData) {
@@ -362,7 +383,9 @@ async function loadContext() {
     }
   }
 
-  if (fssync.existsSync(APPLICATIONS_PATH)) {
+  if (inMemoryApplicationsData) {
+    contextCache.applicationsData = normalizeApplications(inMemoryApplicationsData);
+  } else if (fssync.existsSync(APPLICATIONS_PATH)) {
     const appStat = await fs.stat(APPLICATIONS_PATH);
     if (appStat.mtimeMs !== contextCache.applicationsMtimeMs) {
       contextCache.applicationsMtimeMs = appStat.mtimeMs;
@@ -615,7 +638,7 @@ async function serveStatic(reqPath, res) {
   }
 }
 
-const server = http.createServer(async (req, res) => {
+async function requestHandler(req, res) {
   const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
   const reqPath = url.pathname;
 
@@ -766,12 +789,17 @@ const server = http.createServer(async (req, res) => {
       error: err instanceof Error ? err.message : "Unknown server error"
     });
   }
-});
+}
 
-server.listen(PORT, () => {
-  console.log(`Career advisor running on http://localhost:${PORT}`);
-  if (!OPENAI_API_KEY) {
-    console.log("Warning: OPENAI_API_KEY is not set in .env");
-  }
-  console.log(`Using model: ${OPENAI_MODEL}`);
-});
+if (require.main === module) {
+  const server = http.createServer(requestHandler);
+  server.listen(PORT, () => {
+    console.log(`Career advisor running on http://localhost:${PORT}`);
+    if (!OPENAI_API_KEY) {
+      console.log("Warning: OPENAI_API_KEY is not set in .env");
+    }
+    console.log(`Using model: ${OPENAI_MODEL}`);
+  });
+}
+
+module.exports = requestHandler;
