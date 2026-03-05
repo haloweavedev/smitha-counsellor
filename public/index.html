@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smitha Career Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #081625;
+        --bg2: #102a40;
+        --text: #e5f1fb;
+        --muted: #90aec2;
+        --teal: #22d3ee;
+        --mint: #34d399;
+        --amber: #fb923c;
+        --border: rgba(255, 255, 255, 0.16);
+        --card: rgba(255, 255, 255, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        color: var(--text);
+        min-height: 100vh;
+        background:
+          radial-gradient(60rem 25rem at -12% -15%, rgba(34, 211, 238, 0.24), transparent 62%),
+          radial-gradient(50rem 22rem at 110% -20%, rgba(251, 146, 60, 0.2), transparent 60%),
+          linear-gradient(120deg, var(--bg), var(--bg2));
+      }
+      .shell {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 20px;
+      }
+      .hero {
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        background: linear-gradient(150deg, rgba(255,255,255,.12), rgba(255,255,255,.03));
+        backdrop-filter: blur(12px);
+        padding: 28px;
+      }
+      .kicker {
+        display: inline-block;
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        color: var(--teal);
+        font-weight: 700;
+        margin-bottom: .7rem;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(1.7rem, 4vw, 2.8rem);
+        line-height: 1.15;
+      }
+      p {
+        margin: .85rem 0 0;
+        color: var(--muted);
+        font-size: .98rem;
+        max-width: 720px;
+      }
+      .grid {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--card);
+        padding: 18px;
+      }
+      .title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: .35rem;
+      }
+      .desc {
+        color: var(--muted);
+        font-size: .9rem;
+        margin-bottom: 1rem;
+        min-height: 48px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: .55rem 1rem;
+        font-size: .86rem;
+        text-decoration: none;
+        font-weight: 700;
+        border: 1px solid transparent;
+      }
+      .btn-primary {
+        color: #041018;
+        background: linear-gradient(135deg, var(--teal), var(--mint));
+      }
+      .btn-secondary {
+        color: #041018;
+        background: linear-gradient(135deg, var(--mint), var(--amber));
+      }
+      .footer {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: .8rem;
+      }
+      @media (max-width: 900px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <span class="kicker">Career Operating System</span>
+        <h1>Smitha Career Hub</h1>
+        <p>Use Counseller for strategic coaching and interview prep, and Tracker to manage your application pipeline in one place.</p>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <div class="title">Counseller</div>
+          <div class="desc">AI career coach tailored to your resume, interests, and active applications.</div>
+          <a class="btn btn-primary" href="/counseller">Open Counseller</a>
+        </article>
+        <article class="card">
+          <div class="title">Applications Tracker</div>
+          <div class="desc">Add, edit, and update progress directly into your `applications.json`.</div>
+          <a class="btn btn-secondary" href="/tracker">Open Tracker</a>
+        </article>
+      </section>
+
+      <div class="footer">Local app running on your machine. API key stays server-side.</div>
+    </main>
+  </body>
+</html>

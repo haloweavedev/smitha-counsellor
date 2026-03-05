@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smitha Career AI Advisor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #07131f;
+        --bg-soft: #0c1e30;
+        --card: rgba(255, 255, 255, 0.07);
+        --card-strong: rgba(255, 255, 255, 0.1);
+        --border: rgba(255, 255, 255, 0.16);
+        --text: #e5f1fb;
+        --muted: #8eaac0;
+        --teal: #22d3ee;
+        --mint: #34d399;
+        --orange: #fb923c;
+        --ink: #041018;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: "Sora", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(65rem 25rem at -10% -12%, rgba(34, 211, 238, 0.28), transparent 62%),
+          radial-gradient(56rem 21rem at 110% -18%, rgba(251, 146, 60, 0.2), transparent 60%),
+          radial-gradient(30rem 30rem at 50% 115%, rgba(52, 211, 153, 0.17), transparent 70%),
+          linear-gradient(125deg, var(--bg), var(--bg-soft));
+      }
+
+      .noise {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.05;
+        background-image: radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0);
+        background-size: 22px 22px;
+      }
+
+      .app {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 22px;
+      }
+
+      .topbar {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: linear-gradient(155deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04));
+        backdrop-filter: blur(14px);
+        padding: 16px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--teal), var(--mint));
+        color: var(--ink);
+        font-weight: 800;
+        display: grid;
+        place-items: center;
+      }
+
+      .title {
+        font-size: 1.15rem;
+        font-weight: 700;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin-top: 2px;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .link {
+        color: var(--teal);
+        text-decoration: none;
+        font-size: 0.82rem;
+        border: 1px solid rgba(34, 211, 238, 0.35);
+        border-radius: 999px;
+        padding: 7px 12px;
+      }
+
+      .status {
+        font-family: "JetBrains Mono", monospace;
+        color: #96f2d7;
+        font-size: 0.75rem;
+      }
+
+      .layout {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 14px;
+      }
+
+      .panel {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--card);
+        backdrop-filter: blur(10px);
+      }
+
+      .left {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .section-label {
+        font-size: 0.72rem;
+        color: var(--teal);
+        text-transform: uppercase;
+        letter-spacing: 0.13em;
+        font-weight: 700;
+        margin-bottom: 7px;
+      }
+
+      .note {
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.45;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .metric {
+        background: var(--card-strong);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px;
+      }
+
+      .metric .k {
+        font-size: 0.73rem;
+        color: var(--muted);
+      }
+
+      .metric .v {
+        font-size: 1.35rem;
+        font-weight: 800;
+        margin-top: 3px;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chip {
+        padding: 5px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        font-size: 0.74rem;
+        color: #cae4f5;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .small-list {
+        margin: 0;
+        padding-left: 18px;
+        color: #cee0ee;
+        font-size: 0.84rem;
+        line-height: 1.55;
+      }
+
+      .chat-wrap {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        min-height: 74vh;
+        overflow: hidden;
+      }
+
+      .toolbar {
+        padding: 13px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        background: rgba(0, 0, 0, 0.15);
+      }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      select,
+      button,
+      textarea {
+        font: inherit;
+      }
+
+      select,
+      .btn {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.22);
+        color: var(--text);
+        padding: 8px 10px;
+      }
+
+      .btn {
+        cursor: pointer;
+        transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(34, 211, 238, 0.6);
+        background: rgba(34, 211, 238, 0.1);
+      }
+
+      .quick {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .quick .btn {
+        font-size: 0.76rem;
+        padding: 6px 10px;
+      }
+
+      #chatLog {
+        padding: 16px;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .msg {
+        max-width: min(88%, 900px);
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        padding: 12px 13px;
+        white-space: pre-wrap;
+        line-height: 1.55;
+        font-size: 0.9rem;
+      }
+
+      .msg.user {
+        align-self: flex-end;
+        background: rgba(34, 211, 238, 0.14);
+        border-color: rgba(34, 211, 238, 0.44);
+      }
+
+      .msg.assistant {
+        align-self: flex-start;
+        background: rgba(52, 211, 153, 0.14);
+        border-color: rgba(52, 211, 153, 0.4);
+      }
+
+      .composer {
+        padding: 13px;
+        border-top: 1px solid var(--border);
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.15);
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 90px;
+        resize: vertical;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.24);
+        color: var(--text);
+        padding: 10px 12px;
+      }
+
+      .send {
+        border: 0;
+        border-radius: 12px;
+        padding: 0 18px;
+        min-width: 135px;
+        font-weight: 800;
+        color: var(--ink);
+        background: linear-gradient(135deg, var(--teal), var(--orange));
+      }
+
+      .tiny {
+        color: var(--muted);
+        font-size: 0.74rem;
+        margin-top: 5px;
+      }
+
+      @media (max-width: 1020px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .chat-wrap {
+          min-height: 68vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="app">
+      <header class="topbar panel">
+        <div class="brand">
+          <div class="logo">S</div>
+          <div>
+            <div class="title">Smitha Career AI Advisor</div>
+            <div class="subtitle">Personal strategy engine for biotech, diagnostics, and computational biology roles.</div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <a class="link" href="/tracker">Application Tracker</a>
+          <div class="status" id="statusLine">Booting...</div>
+        </div>
+      </header>
+
+      <div class="layout">
+        <aside class="panel left">
+          <section>
+            <div class="section-label">Profile Snapshot</div>
+            <div id="profileText" class="note">Loading profile...</div>
+          </section>
+
+          <section class="metric-grid">
+            <div class="metric">
+              <div class="k">Applications</div>
+              <div class="v" id="kpiTotal">0</div>
+            </div>
+            <div class="metric">
+              <div class="k">Pending Followups</div>
+              <div class="v" id="kpiFollowups">0</div>
+            </div>
+          </section>
+
+          <section>
+            <div class="section-label">Strength Signals</div>
+            <div id="strengths" class="chips"></div>
+          </section>
+
+          <section>
+            <div class="section-label">Interest Signals</div>
+            <div id="interests" class="chips"></div>
+          </section>
+
+          <section>
+            <div class="section-label">Top Focus Roles</div>
+            <ul id="rolesList" class="small-list"></ul>
+          </section>
+        </aside>
+
+        <main class="panel chat-wrap">
+          <div class="toolbar">
+            <div class="controls">
+              <label for="modeSelect" class="tiny" style="margin: 0">Mode</label>
+              <select id="modeSelect">
+                <option value="general">General Strategy</option>
+                <option value="application">Application Execution</option>
+                <option value="resume">Resume Optimization</option>
+                <option value="interview">Interview Prep</option>
+                <option value="networking">Networking & Follow-Ups</option>
+              </select>
+              <button class="btn" id="resetBtn">Reset Session</button>
+            </div>
+
+            <div class="quick">
+              <button class="btn quick-btn" data-prompt="Give me my highest priority 7-day application plan based on my current profile and pipeline.">
+                7-Day Plan
+              </button>
+              <button class="btn quick-btn" data-prompt="Draft a concise recruiter follow-up message for a role I applied to 10 days ago.">
+                Follow-Up Draft
+              </button>
+              <button class="btn quick-btn" data-prompt="Ask me 5 likely interview questions for my target biotech roles and show strong answer structures.">
+                Interview Drill
+              </button>
+            </div>
+          </div>
+
+          <div id="chatLog"></div>
+
+          <form class="composer" id="chatForm">
+            <div>
+              <textarea
+                id="messageInput"
+                placeholder="Ask for role targeting, resume rewrites, outreach messages, mock interviews, or negotiation prep..."
+              ></textarea>
+              <div class="tiny">Secure setup: key stays server-side in your local `.env`.</div>
+            </div>
+            <button class="send" type="submit" id="sendBtn">Get Advice</button>
+          </form>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const chatLog = document.getElementById("chatLog");
+      const chatForm = document.getElementById("chatForm");
+      const messageInput = document.getElementById("messageInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const modeSelect = document.getElementById("modeSelect");
+      const statusLine = document.getElementById("statusLine");
+      const resetBtn = document.getElementById("resetBtn");
+      let sessionId = "";
+
+      function addMessage(role, content) {
+        const el = document.createElement("div");
+        el.className = `msg ${role}`;
+        el.textContent = content;
+        chatLog.appendChild(el);
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+
+      function renderChips(targetId, values, emptyLabel) {
+        const container = document.getElementById(targetId);
+        container.innerHTML = "";
+        const items = Array.isArray(values) && values.length ? values : [emptyLabel];
+        for (const item of items) {
+          const chip = document.createElement("span");
+          chip.className = "chip";
+          chip.textContent = item;
+          container.appendChild(chip);
+        }
+      }
+
+      async function loadProfile() {
+        const healthResp = await fetch("/api/health");
+        const health = await healthResp.json();
+        statusLine.textContent = health.ok
+          ? `Model: ${health.model} | Resume: ${health.resume_path || "not found"}`
+          : "Health check failed";
+
+        const profileResp = await fetch("/api/profile");
+        const data = await profileResp.json();
+        const profile = data.profile || {};
+        const summary = profile.application_summary || {};
+        const topRoles = summary.top_roles || [];
+
+        document.getElementById("profileText").textContent =
+          `${profile.name || "Candidate"} | ${profile.location_preference || "N/A"} | Focus: ${profile.role_focus || "N/A"}`;
+        document.getElementById("kpiTotal").textContent = summary.total || 0;
+        document.getElementById("kpiFollowups").textContent = summary.pending_follow_ups || 0;
+
+        renderChips("strengths", profile.inferred_strengths || [], "No resume skills detected yet");
+        renderChips("interests", profile.inferred_interests || [], "No inferred interests yet");
+
+        const rolesList = document.getElementById("rolesList");
+        rolesList.innerHTML = "";
+        if (topRoles.length) {
+          topRoles.forEach((entry) => {
+            const li = document.createElement("li");
+            li.textContent = `${entry.role} (${entry.count})`;
+            rolesList.appendChild(li);
+          });
+        } else {
+          const li = document.createElement("li");
+          li.textContent = "Add real application entries to generate role intelligence.";
+          rolesList.appendChild(li);
+        }
+      }
+
+      async function sendMessage(message) {
+        sendBtn.disabled = true;
+        sendBtn.textContent = "Thinking...";
+        addMessage("user", message);
+
+        try {
+          const resp = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message,
+              sessionId,
+              mode: modeSelect.value
+            })
+          });
+          const data = await resp.json();
+          if (!resp.ok) throw new Error(data.error || "Failed to get advice");
+          sessionId = data.sessionId;
+          addMessage("assistant", data.answer);
+          statusLine.textContent = `Model: ${data.meta.model} | Resume chunks used: ${data.meta.resume_context_chunks} | Apps used: ${data.meta.relevant_applications}`;
+        } catch (err) {
+          addMessage("assistant", `Error: ${err.message}`);
+        } finally {
+          sendBtn.disabled = false;
+          sendBtn.textContent = "Get Advice";
+        }
+      }
+
+      chatForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const message = messageInput.value.trim();
+        if (!message) return;
+        messageInput.value = "";
+        await sendMessage(message);
+      });
+
+      resetBtn.addEventListener("click", async () => {
+        if (!sessionId) return;
+        await fetch("/api/session/reset", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId })
+        });
+        sessionId = "";
+        addMessage("assistant", "Session context reset. Starting fresh.");
+      });
+
+      document.querySelectorAll(".quick-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const prompt = btn.getAttribute("data-prompt");
+          await sendMessage(prompt);
+        });
+      });
+
+      async function init() {
+        try {
+          await loadProfile();
+          addMessage(
+            "assistant",
+            "Ready. I already loaded your resume + applications context. Ask for role targeting, resume rewrite, follow-up drafts, or interview prep."
+          );
+        } catch (err) {
+          statusLine.textContent = `Startup issue: ${err.message}`;
+          addMessage("assistant", `Startup issue: ${err.message}`);
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>

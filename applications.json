@@ -1,0 +1,48 @@
+{
+  "_comment": "Career application tracker (valid JSON). Edit values directly.",
+  "_how_to_use": [
+    "Add one object per job in applications[].",
+    "Use YYYY-MM-DD for dates.",
+    "Keep status to: applied | screening | interview | assessment | offer | rejected | withdrawn.",
+    "Use notes for follow-up reminders, recruiter responses, and interview prep bullets."
+  ],
+  "_fields_guide": {
+    "company": "Company name",
+    "role": "Job title",
+    "location": "City / Remote",
+    "date_applied": "Date applied in YYYY-MM-DD",
+    "status": "Current pipeline stage",
+    "source": "LinkedIn / Company Website / Referral / etc.",
+    "contact_person": "Recruiter or hiring manager name",
+    "contact_email": "Recruiter or hiring manager email",
+    "resume_version": "Resume variant used for this role",
+    "job_url": "Direct job posting link",
+    "follow_up_date": "Next follow-up date in YYYY-MM-DD",
+    "salary_range": "Posted or expected salary",
+    "notes": "Anything useful: talking points, interview dates, response history"
+  },
+  "applications": [],
+  "application_advice": {
+    "_comment": "Use this checklist for each position you apply to.",
+    "before_applying": [
+      "Match your resume to 6-8 exact keywords from the job description.",
+      "Write 2-3 bullets that prove fit with numbers/results.",
+      "Find recruiter or team lead on LinkedIn and save profile link."
+    ],
+    "during_application": [
+      "Use a custom resume version per role type.",
+      "Add a short, role-specific cover note (3-5 lines).",
+      "Save job URL and job ID in notes."
+    ],
+    "after_applying": [
+      "Send one follow-up in 7-10 days if no response.",
+      "Prepare 5 talking points tailored to the company product/team.",
+      "Track every response and next step date in this file."
+    ],
+    "weekly_targets": {
+      "applications_per_week": 15,
+      "follow_ups_per_week": 10,
+      "network_messages_per_week": 20
+    }
+  }
+}

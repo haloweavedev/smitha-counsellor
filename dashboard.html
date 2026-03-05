@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Smitha Sandrina — Career Intelligence Dashboard 2026</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#060d1a;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.09);--teal:#2dd4bf;--purple:#a78bfa;--green:#4ade80;--amber:#fbbf24;--rose:#fb7185;}
+*{box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--bg);font-family:'Inter',sans-serif;color:#e2e8f0;overflow-x:hidden;margin:0;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 15% 10%,rgba(45,212,191,.08),transparent 60%),radial-gradient(ellipse 50% 60% at 85% 80%,rgba(167,139,250,.08),transparent 60%),radial-gradient(ellipse 40% 40% at 55% 45%,rgba(74,222,128,.04),transparent 60%);pointer-events:none;z-index:0;}
+body > *{position:relative;z-index:1;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:rgba(45,212,191,.35);border-radius:3px;}
+nav{position:sticky;top:0;z-index:100;background:rgba(6,13,26,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;}
+.grad{background:linear-gradient(135deg,var(--teal),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tag{font-size:.68rem;font-weight:600;padding:.18rem .6rem;border-radius:99px;text-transform:uppercase;letter-spacing:.05em;display:inline-block;}
+.tag-ai{background:rgba(167,139,250,.18);color:var(--purple);border:1px solid rgba(167,139,250,.3);}
+.tag-bio{background:rgba(45,212,191,.15);color:var(--teal);border:1px solid rgba(45,212,191,.3);}
+.tag-india{background:rgba(251,191,36,.15);color:var(--amber);border:1px solid rgba(251,191,36,.3);}
+.tag-hot{background:rgba(251,113,133,.15);color:var(--rose);border:1px solid rgba(251,113,133,.3);}
+.fbtn{font-size:.8rem;font-weight:600;cursor:pointer;border-radius:99px;padding:.4rem 1.1rem;border:1px solid var(--border);color:#94a3b8;background:transparent;transition:all .2s;}
+.fbtn:hover{border-color:var(--teal);color:var(--teal);}
+.fbtn.active{background:linear-gradient(135deg,var(--teal),var(--purple));color:#060d1a;border-color:transparent;}
+.ccard{transition:transform .22s ease,box-shadow .22s ease;cursor:pointer;}
+.ccard:hover{transform:translateY(-5px);box-shadow:0 24px 55px rgba(0,0,0,.5);}
+.ccard.hidden{display:none!important;}
+.sbar-track{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;}
+.sbar-fill{height:100%;border-radius:3px;transition:width 1.3s cubic-bezier(.4,0,.2,1);width:0;}
+.path-card{border-left:3px solid;transition:transform .2s;}
+.path-card:hover{transform:translateX(5px);}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(45,212,191,.2);}50%{box-shadow:0 0 45px rgba(45,212,191,.45);}}
+.glow{animation:glow 3s ease-in-out infinite;}
+@keyframes fadein{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fi{animation:fadein .6s ease forwards;}
+.fi2{animation:fadein .6s .15s ease both;}
+.fi3{animation:fadein .6s .3s ease both;}
+.wrap{max-width:1300px;margin:0 auto;padding:3rem 1.5rem;}
+.sec-label{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:.35rem;}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:1.65rem;font-weight:700;margin-bottom:.2rem;}
+.sec-sub{color:#64748b;font-size:.88rem;margin-bottom:2rem;}
+.status-badge{font-size:.68rem;font-weight:700;padding:.2rem .65rem;border-radius:99px;text-transform:uppercase;letter-spacing:.04em;display:inline-block;}
+.st-applied{background:rgba(45,212,191,.15);color:var(--teal);border:1px solid rgba(45,212,191,.3);}
+.st-screening{background:rgba(167,139,250,.15);color:var(--purple);border:1px solid rgba(167,139,250,.3);}
+.st-interview{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.3);}
+.st-assessment{background:rgba(251,191,36,.15);color:var(--amber);border:1px solid rgba(251,191,36,.3);}
+.st-offer{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.3);}
+.st-rejected{background:rgba(251,113,133,.15);color:var(--rose);border:1px solid rgba(251,113,133,.3);}
+.st-withdrawn{background:rgba(148,163,184,.15);color:#94a3b8;border:1px solid rgba(148,163,184,.3);}
+.tracker-table-wrap{overflow:auto;}
+.tracker-table{width:100%;min-width:900px;border-collapse:collapse;}
+.tracker-table th{font-size:.7rem;color:#64748b;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:.75rem .6rem;border-bottom:1px solid var(--border);text-align:left;}
+.tracker-table td{font-size:.78rem;color:#cbd5e1;line-height:1.55;padding:.75rem .6rem;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top;}
+.tracker-help{font-size:.78rem;color:#64748b;line-height:1.7;}
+@media(max-width:768px){.hero-grid{grid-template-columns:1fr!important;}.cg{grid-template-columns:1fr!important;}.pg{grid-template-columns:1fr!important;}.tracker-summary-grid{grid-template-columns:1fr!important;}.advice-grid{grid-template-columns:1fr!important;}.weekly-grid{grid-template-columns:1fr!important;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div style="max-width:1300px;margin:0 auto;padding:.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+    <div style="display:flex;align-items:center;gap:.75rem;">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.95rem;color:#060d1a;">S</div>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;">Career Dashboard <span style="color:var(--teal)">2026</span></span>
+    </div>
+    <div style="display:flex;gap:1.5rem;font-size:.8rem;color:#64748b;flex-wrap:wrap;">
+      <a href="#profile" style="color:inherit;text-decoration:none" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='#64748b'">Profile</a>
+      <a href="#dna" style="color:inherit;text-decoration:none" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='#64748b'">Skills DNA</a>
+      <a href="#companies" style="color:inherit;text-decoration:none" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='#64748b'">S&P 500</a>
+      <a href="#paths" style="color:inherit;text-decoration:none" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='#64748b'">Career Paths</a>
+      <a href="#gaps" style="color:inherit;text-decoration:none" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='#64748b'">Skill Gaps</a>
+      <a href="#plan" style="color:inherit;text-decoration:none" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='#64748b'">Action Plan</a>
+      <a href="#tracker" style="color:inherit;text-decoration:none" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='#64748b'">Tracker</a>
+      <a href="#advice" style="color:inherit;text-decoration:none" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='#64748b'">Advice</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="profile" class="wrap">
+  <div class="hero-grid fi" style="display:grid;grid-template-columns:1.3fr 0.7fr;gap:2.5rem;align-items:start;">
+    <div>
+      <div class="sec-label">Molecular Biologist &middot; Bioinformatician &middot; AI-Ready Scientist</div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:3rem;font-weight:800;line-height:1.05;margin:0 0 .75rem;"><span class="grad">Smitha</span><br/>Sandrina</h1>
+      <p style="color:#94a3b8;font-size:.93rem;line-height:1.75;max-width:530px;margin-bottom:1.5rem;">
+        M.Sc. Molecular &amp; Cellular Biology candidate (Expected 2026) with a SGPA of <strong style="color:#e2e8f0">9.58</strong>. You combine wet-lab expertise (PCR, ELISA, cloning, chromatography) with bioinformatics tools (BLAST, PyMOL, SWISS-MODEL, MEGA12) and computational skills (Python, R, AWS). Your Nipah virus glycoprotein cloning project and CRISPR/Cas9 structural modeling work puts you at the forefront of the two hottest areas in biotech for 2026 — <strong style="color:var(--teal)">mRNA therapeutics</strong> and <strong style="color:var(--purple)">gene editing</strong>.
+      </p>
+      <div style="display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:1.75rem;">
+        <span class="tag tag-bio">Molecular Biology</span>
+        <span class="tag tag-ai">Bioinformatics</span>
+        <span class="tag tag-hot">CRISPR / Cas9</span>
+        <span class="tag tag-bio">mRNA / Nipah Research</span>
+        <span class="tag tag-ai">Python + AWS</span>
+        <span class="tag tag-india">Bangalore, India</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
+        <div class="card" style="padding:.9rem;text-align:center;"><div style="font-size:1.8rem;font-weight:800;font-family:'Space Grotesk',sans-serif;" class="grad">9.58</div><div style="font-size:.7rem;color:#64748b;margin-top:.15rem;">M.Sc. SGPA</div></div>
+        <div class="card" style="padding:.9rem;text-align:center;"><div style="font-size:1.8rem;font-weight:800;font-family:'Space Grotesk',sans-serif;" class="grad">9.5</div><div style="font-size:.7rem;color:#64748b;margin-top:.15rem;">B.Sc. CGPA</div></div>
+        <div class="card" style="padding:.9rem;text-align:center;"><div style="font-size:1.8rem;font-weight:800;font-family:'Space Grotesk',sans-serif;" class="grad">#1</div><div style="font-size:.7rem;color:#64748b;margin-top:.15rem;">B.Sc. Rank</div></div>
+        <div class="card" style="padding:.9rem;text-align:center;"><div style="font-size:1.8rem;font-weight:800;font-family:'Space Grotesk',sans-serif;" class="grad">4</div><div style="font-size:.7rem;color:#64748b;margin-top:.15rem;">Internships</div></div>
+      </div>
+    </div>
+    <div class="fi2">
+      <div class="card glow" style="padding:1.5rem;">
+        <div style="font-size:.75rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;">Career Readiness Score</div>
+        <canvas id="readinessChart" height="200"></canvas>
+        <div style="margin-top:1.25rem;font-size:.78rem;color:#64748b;line-height:1.7;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;"><span>Wet Lab Skills</span><span style="color:var(--teal);font-weight:600">92%</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;"><span>Bioinformatics</span><span style="color:var(--teal);font-weight:600">74%</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;"><span>Computational / AI</span><span style="color:var(--purple);font-weight:600">62%</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;"><span>Research &amp; Documentation</span><span style="color:var(--teal);font-weight:600">88%</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Industry Readiness</span><span style="color:var(--amber);font-weight:600">71%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS DNA -->
+<section id="dna" class="wrap" style="padding-top:1.5rem;">
+  <div class="sec-label">What You Bring</div>
+  <div class="sec-title">Your Skills DNA</div>
+  <div class="sec-sub">A full picture of your technical and scientific toolkit — rated for 2026 industry standards</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;" class="fi">
+    <div class="card" style="padding:1.75rem;">
+      <div style="margin-bottom:1.5rem;font-weight:600;font-size:.85rem;color:var(--teal);">Laboratory &amp; Molecular Techniques</div>
+      <div id="labSkills"></div>
+    </div>
+    <div class="card" style="padding:1.75rem;">
+      <div style="margin-bottom:1.5rem;font-weight:600;font-size:.85rem;color:var(--purple);">Bioinformatics &amp; Computational</div>
+      <div id="compSkills"></div>
+    </div>
+  </div>
+  <div class="card fi2" style="padding:1.75rem;margin-top:1.5rem;">
+    <div style="margin-bottom:1.25rem;font-weight:600;font-size:.85rem;color:var(--amber);">Your Unique Edge in 2026</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;">
+      <div style="padding:1rem;background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.15);border-radius:12px;">
+        <div style="font-size:1.5rem;margin-bottom:.5rem;">🧬</div>
+        <div style="font-weight:600;font-size:.88rem;margin-bottom:.35rem;">Nipah Virus Work</div>
+        <div style="font-size:.78rem;color:#64748b;line-height:1.65;">Directly relevant to Moderna, GSK, and Merck — all have active Nipah vaccine/antiviral programs in 2026. This project makes you stand out in biosafety-critical roles.</div>
+      </div>
+      <div style="padding:1rem;background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.15);border-radius:12px;">
+        <div style="font-size:1.5rem;margin-bottom:.5rem;">✂️</div>
+        <div style="font-weight:600;font-size:.88rem;margin-bottom:.35rem;">CRISPR/Cas9 Structural Modeling</div>
+        <div style="font-size:.78rem;color:#64748b;line-height:1.65;">With CASGEVY (CRISPR therapy) now approved, companies like Vertex and Editas desperately need scientists who can model Cas9 variants. Your SWISS-MODEL + PyMOL work is directly applicable.</div>
+      </div>
+      <div style="padding:1rem;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.15);border-radius:12px;">
+        <div style="font-size:1.5rem;margin-bottom:.5rem;">🦠</div>
+        <div style="font-weight:600;font-size:.88rem;margin-bottom:.35rem;">Gut Microbiome / Serotonin</div>
+        <div style="font-size:.78rem;color:#64748b;line-height:1.65;">The gut-brain axis is a $4B+ market growing 18% YoY. Your Ioncure research and review of 15+ microbiome papers positions you well for companies like Pfizer, Takeda, and Synlogic.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S&P 500 COMPANIES -->
+<section id="companies" class="wrap" style="padding-top:1.5rem;">
+  <div class="sec-label">Opportunity Map</div>
+  <div class="sec-title">S&P 500 Companies Aligned With You</div>
+  <div class="sec-sub">Ranked by match to your specific skills — AI, Biotech, India presence, and 2026 growth trajectory</div>
+
+  <!-- FILTERS -->
+  <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.75rem;">
+    <button class="fbtn active" onclick="filterCompanies('all',this)">All Companies</button>
+    <button class="fbtn" onclick="filterCompanies('ai',this)">AI Focus</button>
+    <button class="fbtn" onclick="filterCompanies('biotech',this)">Biotech / Pharma</button>
+    <button class="fbtn" onclick="filterCompanies('india',this)">India Office</button>
+    <button class="fbtn" onclick="filterCompanies('hot',this)">Highest Match</button>
+  </div>
+
+  <!-- COMPANY GRID -->
+  <div class="cg" id="companyGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;"></div>
+</section>
+
+<!-- CAREER PATHS -->
+<section id="paths" class="wrap" style="padding-top:1.5rem;">
+  <div class="sec-label">Where To Go</div>
+  <div class="sec-title">Your Best Career Paths for 2026</div>
+  <div class="sec-sub">Three distinct trajectories based on your skills, interests, and the 2026 job market</div>
+  <div class="pg fi" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;">
+
+    <div class="card path-card" style="padding:1.5rem;border-left-color:var(--teal);">
+      <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(45,212,191,.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🔬</div>
+        <div>
+          <div style="font-weight:700;font-size:.95rem;">Research Scientist</div>
+          <div style="font-size:.72rem;color:var(--teal);">Path 1 — Best Fit Now</div>
+        </div>
+      </div>
+      <p style="font-size:.8rem;color:#94a3b8;line-height:1.7;margin-bottom:1rem;">Your wet lab skills (PCR, ELISA, cloning, expression systems) combined with your M.Sc. make you a strong candidate for Research Associate → Scientist I roles. Fastest path to industry.</p>
+      <div style="font-size:.75rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;">Roles to Target</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.8rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;"></span>Research Associate (Entry)</div>
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;"></span>Scientist I / Junior Scientist</div>
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;"></span>Lab Analyst — R&amp;D</div>
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;"></span>Product Scientist (Diagnostics)</div>
+      </div>
+      <div style="margin-top:1rem;padding:.75rem;background:rgba(45,212,191,.06);border-radius:8px;font-size:.78rem;color:#94a3b8;">
+        <strong style="color:var(--teal)">Target:</strong> Thermo Fisher, Abbott, Danaher, Becton Dickinson — all have India offices and hire M.Sc. research associates directly.
+      </div>
+    </div>
+
+    <div class="card path-card" style="padding:1.5rem;border-left-color:var(--purple);">
+      <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(167,139,250,.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🧠</div>
+        <div>
+          <div style="font-weight:700;font-size:.95rem;">Computational Biologist</div>
+          <div style="font-size:.72rem;color:var(--purple);">Path 2 — High Growth, +1 Skill Needed</div>
+        </div>
+      </div>
+      <p style="font-size:.8rem;color:#94a3b8;line-height:1.7;margin-bottom:1rem;">With your bioinformatics tools (BLAST, MEGA12, Clustal Omega, PyMOL) and Python + R skills, you're already 70% there. Add NGS pipeline experience and machine learning basics to unlock this high-demand role.</p>
+      <div style="font-size:.75rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;">Roles to Target</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.8rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--purple);flex-shrink:0;"></span>Bioinformatics Analyst</div>
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--purple);flex-shrink:0;"></span>Computational Biology Scientist</div>
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--purple);flex-shrink:0;"></span>Genomics Data Analyst</div>
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--purple);flex-shrink:0;"></span>AI Drug Discovery Associate</div>
+      </div>
+      <div style="margin-top:1rem;padding:.75rem;background:rgba(167,139,250,.06);border-radius:8px;font-size:.78rem;color:#94a3b8;">
+        <strong style="color:var(--purple)">Target:</strong> Illumina (Bangalore office), Google DeepMind, Regeneron, Eli Lilly — this is where your bioinformatics + molecular biology combo is rare and valuable.
+      </div>
+    </div>
+
+    <div class="card path-card" style="padding:1.5rem;border-left-color:var(--amber);">
+      <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">📊</div>
+        <div>
+          <div style="font-weight:700;font-size:.95rem;">Clinical Research / Regulatory</div>
+          <div style="font-size:.72rem;color:var(--amber);">Path 3 — Leverages Your Documentation Skills</div>
+        </div>
+      </div>
+      <p style="font-size:.8rem;color:#94a3b8;line-height:1.7;margin-bottom:1rem;">Your SOP drafting, research documentation at Ioncure + AdmitMentors, and clinical lab experience at Rashi Diagnostics gives you a strong foundation for CRO/CRA/Regulatory roles — huge demand in India.</p>
+      <div style="font-size:.75rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;">Roles to Target</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.8rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Clinical Research Associate (CRA)</div>
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Regulatory Affairs Associate</div>
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Medical Science Liaison</div>
+        <div style="display:flex;align-items:center;gap:.5rem;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Healthcare Data Analyst</div>
+      </div>
+      <div style="margin-top:1rem;padding:.75rem;background:rgba(251,191,36,.06);border-radius:8px;font-size:.78rem;color:#94a3b8;">
+        <strong style="color:var(--amber)">Target:</strong> IQVIA (large Bangalore team), Covance, PRA Health Sciences, Parexel — all hire fresh M.Sc. graduates for their India operations.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILL GAPS -->
+<section id="gaps" class="wrap" style="padding-top:1.5rem;">
+  <div class="sec-label">What To Add</div>
+  <div class="sec-title">Skill Gap Analysis for 2026</div>
+  <div class="sec-sub">Critical skills that will unlock higher-tier opportunities at S&P 500 companies</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;" class="fi">
+    <div>
+      <div style="display:flex;flex-direction:column;gap:1rem;" id="gapList"></div>
+    </div>
+    <div>
+      <div class="card" style="padding:1.5rem;margin-bottom:1rem;">
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:1rem;color:var(--teal);">2026 Most In-Demand Skills — BioAI Intersection</div>
+        <canvas id="trendChart" height="220"></canvas>
+      </div>
+      <div class="card" style="padding:1.25rem;">
+        <div style="font-weight:700;font-size:.85rem;margin-bottom:.75rem;color:var(--amber);">Free Resources to Upskill</div>
+        <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.8rem;">
+          <div style="display:flex;align-items:start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border);">
+            <span style="font-size:1rem;flex-shrink:0;">🎓</span>
+            <div><div style="font-weight:600;margin-bottom:.15rem;">Coursera — ML for Genomics (Stanford)</div><div style="color:#64748b">Free audit. Covers NGS data + ML pipeline. 8 weeks.</div></div>
+          </div>
+          <div style="display:flex;align-items:start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border);">
+            <span style="font-size:1rem;flex-shrink:0;">🔬</span>
+            <div><div style="font-weight:600;margin-bottom:.15rem;">Rosalind.info — Bioinformatics Problems</div><div style="color:#64748b">Free. Python-based bioinformatics challenges. Build NGS skills.</div></div>
+          </div>
+          <div style="display:flex;align-items:start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border);">
+            <span style="font-size:1rem;flex-shrink:0;">☁️</span>
+            <div><div style="font-weight:600;margin-bottom:.15rem;">AWS Training — Genomics on AWS</div><div style="color:#64748b">Free tier. You already have AWS CCP — extend it to life sciences.</div></div>
+          </div>
+          <div style="display:flex;align-items:start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border);">
+            <span style="font-size:1rem;flex-shrink:0;">📚</span>
+            <div><div style="font-weight:600;margin-bottom:.15rem;">EMBL-EBI Online Training</div><div style="color:#64748b">Free. Structural biology, proteomics, and ChIP-seq courses.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2026 INDUSTRY TRENDS -->
+<section class="wrap" style="padding-top:1.5rem;">
+  <div class="sec-label">Industry Pulse</div>
+  <div class="sec-title">What's Shaping Biotech + AI in 2026</div>
+  <div class="sec-sub">Macro trends directly relevant to your background and career trajectory</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;" class="fi">
+    <div class="card" style="padding:1.25rem;">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem;">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(45,212,191,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">💉</div>
+        <div><div style="font-weight:700;font-size:.88rem;">mRNA Beyond COVID</div><div style="font-size:.7rem;color:var(--teal);">+32% industry growth 2025-26</div></div>
+      </div>
+      <p style="font-size:.78rem;color:#94a3b8;line-height:1.7;">mRNA platforms are now targeting cancer (Moderna's mRNA-4157 phase 3), Nipah virus, RSV, and influenza. Your cloning work in E. coli expression systems is directly translatable to mRNA construct optimization roles.</p>
+    </div>
+    <div class="card" style="padding:1.25rem;">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem;">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(167,139,250,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">✂️</div>
+        <div><div style="font-weight:700;font-size:.88rem;">CRISPR Therapies Expanding</div><div style="font-size:.7rem;color:var(--purple);">CASGEVY + 40+ new trials in 2026</div></div>
+      </div>
+      <p style="font-size:.78rem;color:#94a3b8;line-height:1.7;">After CASGEVY approval for sickle cell disease, CRISPR is racing into oncology, rare diseases, and ex vivo editing. Your Cas9 structural modeling work with SWISS-MODEL and PyMOL aligns with how companies are optimizing novel Cas variants.</p>
+    </div>
+    <div class="card" style="padding:1.25rem;">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem;">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(74,222,128,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🤖</div>
+        <div><div style="font-weight:700;font-size:.88rem;">AlphaFold + AI Drug Discovery</div><div style="font-size:.7rem;color:var(--green);">$50B+ AI pharma market by 2026</div></div>
+      </div>
+      <p style="font-size:.78rem;color:#94a3b8;line-height:1.7;">AlphaFold3 (released 2024) and RoseTTAFold2 are reshaping how proteins are designed. Your experience with SWISS-MODEL and structural analysis gives you a foundation to grow into AI-assisted structure prediction workflows.</p>
+    </div>
+    <div class="card" style="padding:1.25rem;">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem;">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🦠</div>
+        <div><div style="font-weight:700;font-size:.88rem;">Microbiome Therapeutics</div><div style="font-size:.7rem;color:var(--amber);">$4B+ market, 18% CAGR</div></div>
+      </div>
+      <p style="font-size:.78rem;color:#94a3b8;line-height:1.7;">Gut microbiome modulation is now a major pharma focus. Pfizer, Takeda, and Synlogic have active programs. Your Ioncure research on gut-serotonin pathways is directly relevant — this is a niche where your literature review skills add real value.</p>
+    </div>
+    <div class="card" style="padding:1.25rem;">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem;">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(251,113,133,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🧬</div>
+        <div><div style="font-weight:700;font-size:.88span;">Genomics + NGS Explosion</div><div style="font-size:.7rem;color:var(--rose);">$35B sequencing market by 2027</div></div>
+      </div>
+      <p style="font-size:.78rem;color:#94a3b8;line-height:1.7;">Next-gen sequencing costs have dropped below $200/genome. Illumina, 10x Genomics, and Oxford Nanopore are scaling fast. Your MEGA12, BLAST, and Clustal Omega skills position you for genomics analyst roles — add Bioconductor (R) and Snakemake to accelerate.</p>
+    </div>
+    <div class="card" style="padding:1.25rem;">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem;">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(45,212,191,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🇮🇳</div>
+        <div><div style="font-weight:700;font-size:.88rem;">India's Biotech Boom</div><div style="font-size:.7rem;color:var(--teal);">3rd largest biotech workforce globally</div></div>
+      </div>
+      <p style="font-size:.78rem;color:#94a3b8;line-height:1.7;">India's biotech sector hit $130B in 2024, with Bangalore as the hub. S&P 500 companies like Eli Lilly, AstraZeneca, Microsoft, and Abbott have major R&D centers here. You're geographically positioned in the best city for biotech-AI opportunities in India.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 90-DAY ACTION PLAN -->
+<section id="plan" class="wrap" style="padding-top:1.5rem;padding-bottom:4rem;">
+  <div class="sec-label">Your Next Move</div>
+  <div class="sec-title">90-Day Action Plan — Starting Now</div>
+  <div class="sec-sub">Concrete, prioritized steps to land your first role at an S&P 500-aligned biotech or AI company</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;" class="fi">
+    <div class="card" style="padding:1.5rem;border-top:2px solid var(--teal);">
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:.35rem;">Days 1–30</div>
+      <div style="font-size:.78rem;color:var(--teal);font-weight:600;margin-bottom:1rem;">Foundation &amp; Signal Building</div>
+      <div style="display:flex;flex-direction:column;gap:.7rem;">
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(45,212,191,.2);border:1px solid rgba(45,212,191,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">1</div>
+          <div><span style="font-weight:600">Publish your Cas9 project on GitHub</span> — create a Jupyter notebook with SWISS-MODEL results, sequence alignment, and PyMOL visualizations. This is your portfolio.</div>
+        </div>
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(45,212,191,.2);border:1px solid rgba(45,212,191,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">2</div>
+          <div><span style="font-weight:600">Optimize LinkedIn profile</span> — add "Bioinformatics", "CRISPR", "mRNA", "Protein Modeling" as skills. Open to Work (visible to recruiters). Connect with scientists at Thermo Fisher Bangalore + Illumina India.</div>
+        </div>
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(45,212,191,.2);border:1px solid rgba(45,212,191,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">3</div>
+          <div><span style="font-weight:600">Start Rosalind.info</span> — complete 20 Python bioinformatics problems. This directly preps you for bioinformatics analyst interviews at genomics companies.</div>
+        </div>
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(45,212,191,.2);border:1px solid rgba(45,212,191,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">4</div>
+          <div><span style="font-weight:600">Apply to 10 Research Associate roles</span> — Abbott India, Thermo Fisher Bangalore, Danaher, Becton Dickinson. Use your Nipah project + clinical lab experience as differentiators.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="padding:1.5rem;border-top:2px solid var(--purple);">
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:.35rem;">Days 31–60</div>
+      <div style="font-size:.78rem;color:var(--purple);font-weight:600;margin-bottom:1rem;">Skills Upgrade &amp; Network</div>
+      <div style="display:flex;flex-direction:column;gap:.7rem;">
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(167,139,250,.2);border:1px solid rgba(167,139,250,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">5</div>
+          <div><span style="font-weight:600">Complete EMBL-EBI Proteomics course</span> (free, 4 weeks). Add it to LinkedIn. This directly supports your PyMOL + SWISS-MODEL experience and bridges to industry structural biology roles.</div>
+        </div>
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(167,139,250,.2);border:1px solid rgba(167,139,250,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">6</div>
+          <div><span style="font-weight:600">Attend BioAsia 2026</span> (Hyderabad, Feb) or IBAB symposium (Bangalore). Eli Lilly, AstraZeneca, and Biocon attend. Bring 30 physical copies of your resume and a QR code to your GitHub.</div>
+        </div>
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(167,139,250,.2);border:1px solid rgba(167,139,250,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">7</div>
+          <div><span style="font-weight:600">Write one Medium/LinkedIn article</span> about your Nipah G-glycoprotein project — what you did, what you learned, what comes next. Scientists at Moderna's pipeline team will notice.</div>
+        </div>
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(167,139,250,.2);border:1px solid rgba(167,139,250,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">8</div>
+          <div><span style="font-weight:600">Apply to IQVIA Bangalore, Covance India</span> for Clinical Research Associate positions. Your SOP documentation experience + science background is exactly what they look for.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="padding:1.5rem;border-top:2px solid var(--amber);">
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:.35rem;">Days 61–90</div>
+      <div style="font-size:.78rem;color:var(--amber);font-weight:600;margin-bottom:1rem;">Land the Role</div>
+      <div style="display:flex;flex-direction:column;gap:.7rem;">
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(251,191,36,.2);border:1px solid rgba(251,191,36,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">9</div>
+          <div><span style="font-weight:600">Target Illumina India (Bangalore)</span> — they are actively hiring for genomics roles and specifically value M.Sc. candidates with bioinformatics tool experience. Apply directly via their careers page.</div>
+        </div>
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(251,191,36,.2);border:1px solid rgba(251,191,36,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">10</div>
+          <div><span style="font-weight:600">Prepare case studies</span> — for each of your 3 main projects (Nipah, Cas9, Microbiome), create a 1-page scientific brief. Use this as a portfolio packet for interviews at R&amp;D companies.</div>
+        </div>
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(251,191,36,.2);border:1px solid rgba(251,191,36,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">11</div>
+          <div><span style="font-weight:600">Apply to Google DeepMind Research</span> (Bangalore) — look for "Research Analyst" or "Biology Operations" roles that leverage your scientific background + Python skills. Highly competitive but your CRISPR work is a strong differentiator.</div>
+        </div>
+        <div style="display:flex;gap:.65rem;align-items:start;font-size:.8rem;">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(251,191,36,.2);border:1px solid rgba(251,191,36,.4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">12</div>
+          <div><span style="font-weight:600">Consider Ph.D. applications</span> — if industry roles are slow, your SGPA of 9.58 qualifies you for DBT-JRF or CSIR-NET fellowships. A PhD in Computational Biology or Structural Biology doubles your long-term market value.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER NOTE -->
+  <div class="card fi2" style="margin-top:2rem;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+    <div style="font-size:.8rem;color:#64748b;">Dashboard generated March 2026 &middot; Data sources: S&P 500 public filings, LinkedIn Talent Insights, India Biotech Report 2025-26, Nature Biotechnology Job Trends</div>
+    <div style="font-size:.78rem;color:#475569;">Smitha Sandrina &middot; smithasandrina7@gmail.com</div>
+  </div>
+</section>
+
+<!-- APPLICATION TRACKER -->
+<section id="tracker" class="wrap" style="padding-top:1.5rem;">
+  <div class="sec-label">Job Pipeline</div>
+  <div class="sec-title">Applications Tracker</div>
+  <div class="sec-sub">This section reads your local <code>applications.json</code> and shows where you have already applied.</div>
+
+  <div class="card fi" style="padding:1.1rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+    <div id="trackerStatus" style="font-size:.78rem;color:#64748b;">Loading applications.json...</div>
+    <div style="display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;">
+      <button class="fbtn" onclick="loadApplicationsJson()">Reload JSON</button>
+      <label class="fbtn" for="jsonFileInput" style="display:inline-flex;align-items:center;">Load Local JSON File</label>
+      <input id="jsonFileInput" type="file" accept=".json,application/json" style="display:none;"/>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem;" class="tracker-summary-grid fi2">
+    <div class="card" style="padding:.9rem;"><div style="font-size:.72rem;color:#64748b;margin-bottom:.25rem;">Total Applications</div><div id="sumTotal" style="font-size:1.45rem;font-weight:800;color:var(--teal);font-family:'Space Grotesk',sans-serif;">0</div></div>
+    <div class="card" style="padding:.9rem;"><div style="font-size:.72rem;color:#64748b;margin-bottom:.25rem;">Interviews + Assessments</div><div id="sumActive" style="font-size:1.45rem;font-weight:800;color:var(--purple);font-family:'Space Grotesk',sans-serif;">0</div></div>
+    <div class="card" style="padding:.9rem;"><div style="font-size:.72rem;color:#64748b;margin-bottom:.25rem;">Offers</div><div id="sumOffers" style="font-size:1.45rem;font-weight:800;color:var(--green);font-family:'Space Grotesk',sans-serif;">0</div></div>
+    <div class="card" style="padding:.9rem;"><div style="font-size:.72rem;color:#64748b;margin-bottom:.25rem;">Needs Follow Up</div><div id="sumFollowUps" style="font-size:1.45rem;font-weight:800;color:var(--amber);font-family:'Space Grotesk',sans-serif;">0</div></div>
+  </div>
+
+  <div class="card tracker-table-wrap fi3" style="padding:.45rem 1rem 1rem;">
+    <table class="tracker-table">
+      <thead>
+        <tr>
+          <th>Date Applied</th>
+          <th>Company</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Follow Up</th>
+          <th>Source</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="applicationsBody">
+        <tr><td colspan="7" style="text-align:center;color:#64748b;padding:1.1rem;">No applications loaded yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- APPLICATION ADVICE -->
+<section id="advice" class="wrap" style="padding-top:1.5rem;padding-bottom:4rem;">
+  <div class="sec-label">Execution Strategy</div>
+  <div class="sec-title">How To Apply Better</div>
+  <div class="sec-sub">The checklist below is loaded from <code>applications.json &rarr; application_advice</code>.</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;" class="advice-grid fi">
+    <div class="card" style="padding:1.25rem;">
+      <div style="font-size:.8rem;color:var(--teal);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.8rem;">Before Applying</div>
+      <ul id="adviceBefore" class="tracker-help" style="margin:0;padding-left:1rem;display:flex;flex-direction:column;gap:.5rem;"></ul>
+    </div>
+    <div class="card" style="padding:1.25rem;">
+      <div style="font-size:.8rem;color:var(--purple);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.8rem;">During Application</div>
+      <ul id="adviceDuring" class="tracker-help" style="margin:0;padding-left:1rem;display:flex;flex-direction:column;gap:.5rem;"></ul>
+    </div>
+    <div class="card" style="padding:1.25rem;">
+      <div style="font-size:.8rem;color:var(--amber);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.8rem;">After Applying</div>
+      <ul id="adviceAfter" class="tracker-help" style="margin:0;padding-left:1rem;display:flex;flex-direction:column;gap:.5rem;"></ul>
+    </div>
+  </div>
+  <div class="card fi2" style="margin-top:1.2rem;padding:1rem 1.1rem;">
+    <div style="font-size:.8rem;color:#64748b;margin-bottom:.7rem;">Weekly Targets</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;" class="weekly-grid">
+      <div style="padding:.7rem;background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.18);border-radius:10px;">
+        <div style="font-size:.7rem;color:#64748b;">Applications / Week</div>
+        <div id="targetApplications" style="font-size:1.2rem;color:var(--teal);font-weight:800;">0</div>
+      </div>
+      <div style="padding:.7rem;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.18);border-radius:10px;">
+        <div style="font-size:.7rem;color:#64748b;">Follow Ups / Week</div>
+        <div id="targetFollowups" style="font-size:1.2rem;color:var(--purple);font-weight:800;">0</div>
+      </div>
+      <div style="padding:.7rem;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.18);border-radius:10px;">
+        <div style="font-size:.7rem;color:#64748b;">Network Messages / Week</div>
+        <div id="targetNetworking" style="font-size:1.2rem;color:var(--amber);font-weight:800;">0</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// ===== SKILLS DATA =====
+const labSkills = [
+  {name:'PCR & Thermocycler', val:90, color:'var(--teal)'},
+  {name:'ELISA / Widal / Staining', val:85, color:'var(--teal)'},
+  {name:'Plasmid Miniprep & Cloning', val:82, color:'var(--teal)'},
+  {name:'Chromatography Techniques', val:78, color:'var(--teal)'},
+  {name:'Nanodrop Quantification', val:80, color:'var(--teal)'},
+  {name:'Microbial Culture & Plating', val:88, color:'var(--teal)'},
+  {name:'SDS-PAGE / Gel Electrophoresis', val:83, color:'var(--teal)'},
+];
+const compSkills = [
+  {name:'BLAST / FASTA', val:82, color:'var(--purple)'},
+  {name:'SWISS-MODEL / PyMOL', val:75, color:'var(--purple)'},
+  {name:'Python (Scripting/Scraping)', val:65, color:'var(--purple)'},
+  {name:'R Programming', val:60, color:'var(--purple)'},
+  {name:'AWS Cloud (Practitioner)', val:62, color:'var(--purple)'},
+  {name:'MEGA12 / Clustal Omega', val:78, color:'var(--purple)'},
+  {name:'CollabFold / SnapGene', val:72, color:'var(--purple)'},
+];
+
+function renderSkillBars(data, container) {
+  const el = document.getElementById(container);
+  el.innerHTML = data.map(s => `
+    <div style="margin-bottom:.9rem;">
+      <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.3rem;">
+        <span>${s.name}</span><span style="color:${s.color};font-weight:600">${s.val}%</span>
+      </div>
+      <div class="sbar-track"><div class="sbar-fill" data-val="${s.val}" style="background:${s.color};width:0%"></div></div>
+    </div>`).join('');
+}
+
+// ===== COMPANIES DATA =====
+const companies = [
+  {name:'Eli Lilly',ticker:'LLY',types:['biotech','ai','hot'],matchScore:93,market:'~$780B',trend:'+21% YTD',india:true,roles:['Research Scientist','Computational Biologist','R&D Associate'],desc:'Leading AI drug discovery + GLP-1 biologics. Major Hyderabad R&D center. Directly hiring M.Sc. scientists for protein engineering and molecular biology roles.',why:'Your molecular biology skills + CRISPR/protein modeling aligns with their antibody and small molecule pipeline. Hyderabad office hires 200+ scientists/year.'},
+  {name:'Moderna',ticker:'MRNA',types:['biotech','ai','hot'],matchScore:92,market:'~$48B',trend:'+28% YTD',india:false,roles:['mRNA Research Associate','Bioinformatics Analyst','R&D Scientist'],desc:'mRNA platform extending to cancer vaccines, Nipah, RSV, and flu. DIRECT MATCH: Moderna has an active Nipah vaccine program (mRNA-1215) in clinical trials.',why:'YOUR NIPAH PROJECT IS A DIRECT MATCH. Moderna\'s mRNA-1215 Nipah vaccine is in Phase 1. Your cloning + expression work in the Nipah G-glycoprotein is directly relevant to their research needs.'},
+  {name:'Illumina',ticker:'ILMN',types:['biotech','ai','india','hot'],matchScore:90,market:'~$15B',trend:'+18% YTD',india:true,roles:['Genomics Applications Scientist','Bioinformatics Analyst','Field Application Scientist'],desc:'World\'s leading NGS platform. Bangalore office actively hiring. Your MEGA12, BLAST, and Clustal Omega experience maps directly to their data analysis needs.',why:'Bangalore office + your bioinformatics tools (MEGA12, BLAST, Clustal Omega, Cytoscape) = direct match for their Applications Scientist and Analyst roles. They love M.Sc. candidates.'},
+  {name:'Thermo Fisher Scientific',ticker:'TMO',types:['biotech','india','hot'],matchScore:88,market:'~$195B',trend:'+12% YTD',india:true,roles:['Research Associate','Product Specialist','Applications Scientist'],desc:'You\'ve used their instruments (nanodrop, gel documentation). Bangalore office. Excellent entry point for M.Sc. graduates into a global S&P 500 life science company.',why:'You\'ve literally used their equipment (nanodrop, thermocycler, UV trans-illuminator). Product Specialist roles need people who understand their instruments at a research level — that\'s you.'},
+  {name:'Alphabet / Google',ticker:'GOOGL',types:['ai','india'],matchScore:83,market:'~$2.2T',trend:'+15% YTD',india:true,roles:['Research Analyst (DeepMind)','Biology Data Analyst','Bioinformatics Engineer'],desc:'DeepMind (AlphaFold) + Isomorphic Labs in AI drug discovery. Google Cloud Life Sciences. Bangalore campus is one of largest outside US. High bar but your CRISPR modeling work is relevant.',why:'AlphaFold3 uses similar structural prediction approaches as SWISS-MODEL. Your experience with 3D protein modeling + Python positions you for DeepMind adjacent biology roles. Very competitive.'},
+  {name:'Regeneron',ticker:'REGN',types:['biotech','ai','hot'],matchScore:88,market:'~$68B',trend:'+14% YTD',india:false,roles:['Research Associate','Protein Sciences Scientist','Genomics Analyst'],desc:'CRISPR gene editing, antibody discovery, and VelociSuite platform. Your Cas9 structural modeling work and protein expression experience maps directly to their core research.',why:'Your CRISPR/Cas9 structural analysis project is directly relevant to Regeneron\'s gene editing programs. They value scientists who can bridge wet lab and computational work.'},
+  {name:'Vertex Pharmaceuticals',ticker:'VRTX',types:['biotech','ai','hot'],matchScore:87,market:'~$120B',trend:'+22% YTD',india:false,roles:['Research Associate','Gene Editing Scientist','Cell Biology Scientist'],desc:'Pioneer in CRISPR gene therapy (CASGEVY for sickle cell). Actively expanding gene editing pipeline. Your Cas9 modeling and molecular biology background is directly relevant.',why:'CASGEVY (co-developed with CRISPR Therapeutics) is FDA approved. Vertex is scaling their gene editing team. Your Cas9 structural work + cloning skills is exactly what they need for next-gen therapies.'},
+  {name:'IQVIA',ticker:'IQV',types:['ai','india','hot'],matchScore:86,market:'~$38B',trend:'+16% YTD',india:true,roles:['Clinical Research Associate','Data Analyst','Medical Science Liaison'],desc:'World\'s largest CRO with huge India operations (Bangalore, Hyderabad, Chennai). Your clinical lab experience + documentation skills + scientific background is their ideal hire profile.',why:'Your combination of clinical lab (Rashi Diagnostics) + scientific documentation (Ioncure, AdmitMentors) + M.Sc. = ideal CRA profile. IQVIA India hires 500+ fresh graduates per year.'},
+  {name:'Amgen',ticker:'AMGN',types:['biotech','ai','india'],matchScore:84,market:'~$152B',trend:'+8% YTD',india:true,roles:['Research Associate','Protein Engineering Scientist','Process Development Associate'],desc:'Biologics leader expanding into AI drug discovery. Hyderabad capability center. Your protein expression work (E. coli BL21 + SDS-PAGE) aligns with their process development needs.',why:'Your E. coli BL21 protein expression work + SDS-PAGE + plasmid miniprep experience maps directly to Amgen\'s process development and biologics manufacturing research roles.'},
+  {name:'Danaher',ticker:'DHR',types:['biotech','india'],matchScore:83,market:'~$175B',trend:'+9% YTD',india:true,roles:['Research Associate','Application Specialist','Quality Analyst'],desc:'Life science instruments (owns Cytiva, Leica, Cepheid, SCIEX). India operations in Bangalore. Your chromatography skills are directly relevant to their Cytiva bioprocessing division.',why:'Danaher\'s Cytiva brand uses affinity chromatography extensively in biologics manufacturing — your chromatography technique experience is a direct fit for their life science tools division.'},
+  {name:'Abbott',ticker:'ABT',types:['biotech','india','hot'],matchScore:82,market:'~$185B',trend:'+11% YTD',india:true,roles:['Diagnostics Scientist','R&D Associate','Clinical Applications Specialist'],desc:'World leader in diagnostics (ELISA, PCR-based tests). Major Bangalore presence. Your clinical lab experience at Rashi Diagnostics + ELISA/PCR skills = direct match for their diagnostics R&D.',why:'You processed ELISA and clinical lab samples at Rashi Diagnostics. Abbott makes ELISA diagnostic kits. Your hands-on experience with their exact test types makes you an ideal R&D associate candidate.'},
+  {name:'Microsoft',ticker:'MSFT',types:['ai','india'],matchScore:80,market:'~$3.1T',trend:'+13% YTD',india:true,roles:['Life Sciences Technical Specialist','Azure Health Cloud Analyst','Research SDE (Biology)'],desc:'Azure Genomics, Microsoft Research India (Bangalore), AI for Health program. Your AWS + Python + biology combination is rare and attractive for their health cloud team.',why:'Your unique combination: AWS Cloud Practitioner + Python + molecular biology knowledge = strong fit for Azure Genomics / Microsoft Health & Life Sciences team in Hyderabad.'},
+  {name:'NVIDIA',ticker:'NVDA',types:['ai','india'],matchScore:78,market:'~$3.4T',trend:'+45% YTD',india:true,roles:['BioNeMo Solutions Architect','Healthcare AI Specialist','Biology Applications Engineer'],desc:'BioNeMo platform for AI drug discovery. Clara Genomics for NGS. Bangalore/Pune offices. High technical bar but your Python + bioinformatics + AWS combo opens doors to their biotech AI team.',why:'NVIDIA BioNeMo (generative AI for drug discovery) is growing rapidly. They need biologists who understand ML tools. Your Python + AWS + bioinformatics background is their target profile.'},
+  {name:'Becton Dickinson',ticker:'BDX',types:['biotech','india'],matchScore:78,market:'~$64B',trend:'+6% YTD',india:true,roles:['R&D Associate','Diagnostics Scientist','Product Applications Specialist'],desc:'Global diagnostics and lab instruments leader. India operations in Bangalore. Your clinical diagnostic skills (Widal, staining, sample processing) match their diagnostics product line.',why:'BD makes the tubes and equipment used in clinical labs like Rashi Diagnostics. Your firsthand experience with their diagnostic workflows makes you directly relevant for applications and R&D roles.'},
+  {name:'Pfizer',ticker:'PFE',types:['biotech','ai','india'],matchScore:78,market:'~$155B',trend:'+5% YTD',india:true,roles:['Research Associate','mRNA Scientist','Clinical Development Associate'],desc:'Post-COVID, Pfizer is heavily investing in mRNA (cancer vaccines, flu, RSV), gene therapy, and AI drug discovery. Large Chennai + Mumbai India operations.',why:'Pfizer\'s mRNA pipeline expansion + their India R&D hub = opportunities for molecular biologists with mRNA/cloning skills. Your Nipah work aligns with their emerging infectious disease programs.'},
+  {name:'Merck (MSD)',ticker:'MRK',types:['biotech','ai','india'],matchScore:77,market:'~$210B',trend:'+4% YTD',india:true,roles:['Research Scientist','Clinical Development Associate','Bioinformatics Analyst'],desc:'Keytruda + CRISPR-based oncology programs. India R&D presence (Mumbai, Hyderabad). Your molecular biology + documentation skills map to their clinical and research operations.',why:'Merck\'s immuno-oncology + CRISPR expansion needs molecular biologists. Your scientific writing skills (SOP drafting, research briefs) are valuable for their clinical operations in India.'},
+  {name:'Gilead Sciences',ticker:'GILD',types:['biotech','ai'],matchScore:77,market:'~$105B',trend:'+10% YTD',india:false,roles:['Virologist','mRNA Research Associate','Computational Biologist'],desc:'Virology expertise + expanding mRNA and cell therapy programs. Your Nipah virus work is directly relevant to their infectious disease research platform.',why:'Your Nipah G-glycoprotein cloning project is highly relevant to Gilead\'s virology and emerging infectious disease programs. They actively seek molecular virologists at the M.Sc. entry level.'},
+  {name:'Bio-Techne',ticker:'TECH',types:['biotech','india'],matchScore:77,market:'~$4.5B',trend:'+7% YTD',india:true,roles:['Applications Scientist','Research Associate','Protein Biochemist'],desc:'Makes research proteins, antibodies, and analytical tools (R&D Systems brand). India presence. Your protein expression and characterization work maps directly to their product validation roles.',why:'Bio-Techne makes the recombinant proteins and antibody kits used in research labs. Your experience with protein expression in E. coli + ELISA + nanodrop maps perfectly to their applications team.'},
+  {name:'Waters Corporation',ticker:'WAT',types:['biotech'],matchScore:74,market:'~$17B',trend:'+8% YTD',india:true,roles:['Applications Chemist','Service Scientist','Chromatography Specialist'],desc:'Leader in chromatography instruments (HPLC, LC-MS). India operations. Your chromatography techniques are a direct match for their field application and R&D roles.',why:'You have direct chromatography technique experience. Waters makes the HPLC and chromatography systems used in labs worldwide. Application Scientist roles need exactly this background.'},
+  {name:'Agilent Technologies',ticker:'A',types:['biotech','ai','india'],matchScore:74,market:'~$29B',trend:'+9% YTD',india:true,roles:['Field Application Scientist','R&D Scientist','Genomics Applications Specialist'],desc:'Lab instruments (PCR, gel documentation, genomics tools). Bangalore office. Your PCR + gel electrophoresis + bioinformatics experience maps to their genomics and diagnostics product line.',why:'Agilent makes PCR systems, gel documentation equipment, and genomics microarrays — all tools you\'ve used. Their Applications Scientists demonstrate products to academic labs using hands-on technique skills like yours.'},
+];
+
+// ===== SKILL GAPS =====
+const gaps = [
+  {skill:'Next-Generation Sequencing (NGS) Pipelines',priority:'Critical',color:'var(--rose)',desc:'Tools: BWA, GATK, Samtools, Snakemake. Required for Illumina, Regeneron, and most genomics roles. 4-6 weeks to learn basics via EMBL-EBI free courses.'},
+  {skill:'Machine Learning for Biology',priority:'High',color:'var(--amber)',desc:'scikit-learn + pandas for genomics data. Basic neural networks (TensorFlow/Keras). This unlocks the AI drug discovery and computational biologist roles at NVDA, Google, Eli Lilly.'},
+  {skill:'Single-Cell RNA Sequencing (scRNA-seq)',priority:'High',color:'var(--amber)',desc:'Seurat (R) or Scanpy (Python). Fastest growing technique in biotech. 90% of genomics job postings in 2026 mention it. 2-month online course to get started.'},
+  {skill:'GCP / ICH E6 Guidelines',priority:'Medium',color:'var(--purple)',desc:'Needed for Clinical Research Associate roles at IQVIA, Covance, Parexel. Free training available via TransCelerate or CCRPS. Your documentation skills make this quick to acquire.'},
+  {skill:'Protein Docking (AutoDock / Vina)',priority:'Medium',color:'var(--purple)',desc:'Extend your PyMOL + SWISS-MODEL skills into active drug discovery. Companies like Schrodinger, BioNeMo/NVIDIA need this. Pairs with your Cas9 modeling background.'},
+  {skill:'Cloud Genomics (AWS HealthOmics)',priority:'Medium',color:'var(--teal)',desc:'You already have AWS CCP. AWS HealthOmics is the next step — it\'s the standard for large-scale genomics data. 2-week extension of your existing AWS knowledge.'},
+];
+
+// ===== RENDER FUNCTIONS =====
+renderSkillBars(labSkills, 'labSkills');
+renderSkillBars(compSkills, 'compSkills');
+
+// Skill bars animation
+setTimeout(() => {
+  document.querySelectorAll('.sbar-fill').forEach(el => {
+    el.style.width = el.dataset.val + '%';
+  });
+}, 300);
+
+// Render company cards
+function renderCompanies(filter) {
+  const grid = document.getElementById('companyGrid');
+  const filtered = filter === 'all' ? companies : filter === 'hot' ? companies.filter(c => c.matchScore >= 85) : companies.filter(c => c.types.includes(filter));
+  grid.innerHTML = filtered.map(c => `
+    <div class="card ccard" style="padding:1.25rem;" onclick="toggleDetails(this)">
+      <div style="display:flex;align-items:start;gap:.85rem;margin-bottom:.85rem;">
+        <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,rgba(45,212,191,.15),rgba(167,139,250,.15));border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;color:var(--teal);flex-shrink:0;">${c.ticker.substring(0,3)}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+            <span style="font-weight:700;font-size:.92rem;">${c.name}</span>
+            <span style="font-size:.7rem;color:#64748b;background:rgba(255,255,255,.05);padding:.1rem .45rem;border-radius:4px;">${c.ticker}</span>
+          </div>
+          <div style="font-size:.72rem;color:${c.trend.startsWith('+') ? 'var(--green)' : 'var(--rose)'};font-weight:600;">${c.trend}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:1.4rem;font-weight:800;font-family:'Space Grotesk',sans-serif;background:linear-gradient(135deg,var(--teal),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${c.matchScore}%</div>
+          <div style="font-size:.65rem;color:#64748b;">match</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem;">
+        ${c.types.includes('ai') ? '<span class="tag tag-ai">AI</span>' : ''}
+        ${c.types.includes('biotech') ? '<span class="tag tag-bio">Biotech</span>' : ''}
+        ${c.india ? '<span class="tag tag-india">India Office</span>' : ''}
+        ${c.matchScore >= 90 ? '<span class="tag tag-hot">Top Match</span>' : ''}
+      </div>
+      <div style="font-size:.78rem;color:#94a3b8;line-height:1.65;margin-bottom:.75rem;">${c.desc}</div>
+      <div class="details-panel" style="display:none;">
+        <div style="padding:.85rem;background:rgba(45,212,191,.05);border:1px solid rgba(45,212,191,.12);border-radius:8px;margin-bottom:.75rem;">
+          <div style="font-size:.72rem;font-weight:700;color:var(--teal);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.06em;">Why You Match</div>
+          <div style="font-size:.78rem;color:#94a3b8;line-height:1.65;">${c.why}</div>
+        </div>
+        <div style="font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.45rem;">Roles to Apply For</div>
+        <div style="display:flex;flex-direction:column;gap:.3rem;">
+          ${c.roles.map(r => `<div style="display:flex;align-items:center;gap:.5rem;font-size:.78rem;"><span style="width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;"></span>${r}</div>`).join('')}
+        </div>
+      </div>
+      <div style="font-size:.72rem;color:#475569;text-align:center;margin-top:.5rem;">Click to expand details</div>
+    </div>`).join('');
+}
+renderCompanies('all');
+
+function toggleDetails(card) {
+  const panel = card.querySelector('.details-panel');
+  const hint = card.querySelectorAll('div[style*="Click to expand"]')[0];
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    if(hint) hint.textContent = 'Click to collapse';
+  } else {
+    panel.style.display = 'none';
+    if(hint) hint.textContent = 'Click to expand details';
+  }
+}
+
+function filterCompanies(type, btn) {
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCompanies(type);
+}
+
+// Render skill gaps
+const gapContainer = document.getElementById('gapList');
+gapContainer.innerHTML = gaps.map(g => `
+  <div class="card" style="padding:1.1rem;border-left:3px solid ${g.color};">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem;">
+      <div style="font-weight:600;font-size:.85rem;">${g.skill}</div>
+      <span style="font-size:.68rem;font-weight:700;padding:.18rem .6rem;border-radius:99px;background:${g.color}22;color:${g.color};border:1px solid ${g.color}44;text-transform:uppercase;">${g.priority}</span>
+    </div>
+    <div style="font-size:.78rem;color:#64748b;line-height:1.65;">${g.desc}</div>
+  </div>`).join('');
+
+// ===== APPLICATION TRACKER =====
+const statusClasses = {
+  applied: 'st-applied',
+  screening: 'st-screening',
+  interview: 'st-interview',
+  assessment: 'st-assessment',
+  offer: 'st-offer',
+  rejected: 'st-rejected',
+  withdrawn: 'st-withdrawn'
+};
+
+function escapeHtml(text) {
+  return String(text ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatDate(dateText) {
+  if (!dateText) return '—';
+  const d = new Date(`${dateText}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return escapeHtml(dateText);
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function renderApplications(applications) {
+  const body = document.getElementById('applicationsBody');
+  const cleanApps = (applications || []).filter(app => app && typeof app === 'object' && !app._comment);
+
+  const totals = cleanApps.reduce((acc, app) => {
+    const status = String(app.status || '').toLowerCase();
+    if (status === 'interview' || status === 'assessment' || status === 'screening') acc.active += 1;
+    if (status === 'offer') acc.offers += 1;
+    if (app.follow_up_date) acc.followUps += 1;
+    return acc;
+  }, { active: 0, offers: 0, followUps: 0 });
+
+  document.getElementById('sumTotal').textContent = cleanApps.length;
+  document.getElementById('sumActive').textContent = totals.active;
+  document.getElementById('sumOffers').textContent = totals.offers;
+  document.getElementById('sumFollowUps').textContent = totals.followUps;
+
+  if (!cleanApps.length) {
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#64748b;padding:1.1rem;">No saved applications yet. Add entries in applications.json, then click Reload JSON.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = cleanApps.map(app => {
+    const status = String(app.status || 'applied').toLowerCase();
+    const statusClass = statusClasses[status] || 'st-applied';
+    const notes = app.notes ? escapeHtml(app.notes).slice(0, 130) : '—';
+    return `
+      <tr>
+        <td>${formatDate(app.date_applied)}</td>
+        <td>${escapeHtml(app.company || '—')}</td>
+        <td>${escapeHtml(app.role || '—')}</td>
+        <td><span class="status-badge ${statusClass}">${escapeHtml(status || 'applied')}</span></td>
+        <td>${formatDate(app.follow_up_date)}</td>
+        <td>${escapeHtml(app.source || '—')}</td>
+        <td>${notes}</td>
+      </tr>`;
+  }).join('');
+}
+
+function renderAdviceList(elementId, items) {
+  const el = document.getElementById(elementId);
+  const list = Array.isArray(items) ? items : [];
+  if (!list.length) {
+    el.innerHTML = '<li>Add advice items in applications.json.</li>';
+    return;
+  }
+  el.innerHTML = list.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+}
+
+function renderAdvice(advice) {
+  const data = advice && typeof advice === 'object' ? advice : {};
+  renderAdviceList('adviceBefore', data.before_applying);
+  renderAdviceList('adviceDuring', data.during_application);
+  renderAdviceList('adviceAfter', data.after_applying);
+  const weekly = data.weekly_targets && typeof data.weekly_targets === 'object' ? data.weekly_targets : {};
+  document.getElementById('targetApplications').textContent = weekly.applications_per_week ?? 0;
+  document.getElementById('targetFollowups').textContent = weekly.follow_ups_per_week ?? 0;
+  document.getElementById('targetNetworking').textContent = weekly.network_messages_per_week ?? 0;
+}
+
+function setTrackerStatus(message, colorVar) {
+  const el = document.getElementById('trackerStatus');
+  el.textContent = message;
+  if (colorVar) el.style.color = colorVar;
+}
+
+async function loadApplicationsJson() {
+  try {
+    const response = await fetch('applications.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    renderApplications(data.applications);
+    renderAdvice(data.application_advice);
+    setTrackerStatus('Loaded data from applications.json', 'var(--green)');
+  } catch (err) {
+    renderApplications([]);
+    renderAdvice({});
+    setTrackerStatus('Could not load applications.json automatically. Use "Load Local JSON File" if you opened this page directly.', 'var(--amber)');
+  }
+}
+
+document.getElementById('jsonFileInput').addEventListener('change', (event) => {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      renderApplications(data.applications);
+      renderAdvice(data.application_advice);
+      setTrackerStatus(`Loaded data from ${file.name}`, 'var(--green)');
+    } catch (err) {
+      setTrackerStatus(`Invalid JSON file: ${file.name}`, 'var(--rose)');
+    }
+  };
+  reader.readAsText(file);
+});
+
+loadApplicationsJson();
+
+// ===== CHARTS =====
+// Readiness radar
+new Chart(document.getElementById('readinessChart'), {
+  type: 'radar',
+  data: {
+    labels: ['Wet Lab', 'Bioinformatics', 'Computational', 'Research', 'Documentation', 'Industry Exp'],
+    datasets: [{
+      label: 'Smitha',
+      data: [92, 74, 62, 80, 88, 71],
+      backgroundColor: 'rgba(45,212,191,0.12)',
+      borderColor: 'rgba(45,212,191,0.8)',
+      borderWidth: 2,
+      pointBackgroundColor: '#2dd4bf',
+      pointRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      r: {
+        min: 0, max: 100,
+        ticks: { display: false },
+        grid: { color: 'rgba(255,255,255,0.07)' },
+        angleLines: { color: 'rgba(255,255,255,0.07)' },
+        pointLabels: { color: '#64748b', font: { size: 11 } }
+      }
+    }
+  }
+});
+
+// Trend bar chart
+new Chart(document.getElementById('trendChart'), {
+  type: 'bar',
+  data: {
+    labels: ['NGS Pipelines','ML for Bio','scRNA-seq','CRISPR Modeling','Protein Docking','Cloud Genomics'],
+    datasets: [{
+      label: '2026 Demand Score',
+      data: [95, 91, 88, 83, 78, 74],
+      backgroundColor: ['rgba(251,113,133,.7)','rgba(251,191,36,.7)','rgba(251,191,36,.7)','rgba(167,139,250,.7)','rgba(167,139,250,.7)','rgba(45,212,191,.7)'],
+      borderRadius: 6,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#64748b', font:{size:10} }, grid: { color: 'rgba(255,255,255,0.05)' }, min: 0, max: 100 },
+      y: { ticks: { color: '#94a3b8', font:{size:10} }, grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>

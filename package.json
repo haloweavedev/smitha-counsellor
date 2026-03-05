@@ -1,0 +1,14 @@
+{
+  "name": "smitha-career-advisor",
+  "version": "1.0.0",
+  "description": "Personalized career advisor chatbot for Smitha",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

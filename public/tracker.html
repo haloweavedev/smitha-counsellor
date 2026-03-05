@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Applications Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #071118;
+        --bg2: #0e2231;
+        --panel: rgba(255, 255, 255, 0.05);
+        --border: rgba(255, 255, 255, 0.12);
+        --text: #deebf4;
+        --muted: #85a2b7;
+        --teal: #2dd4bf;
+        --green: #4ade80;
+        --amber: #fbbf24;
+        --rose: #fb7185;
+        --purple: #a78bfa;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+        background:
+          radial-gradient(900px 500px at -10% -20%, rgba(45, 212, 191, 0.2), transparent 58%),
+          radial-gradient(700px 500px at 110% -15%, rgba(167, 139, 250, 0.22), transparent 52%),
+          linear-gradient(135deg, var(--bg), var(--bg2));
+        color: var(--text);
+        min-height: 100vh;
+      }
+      .shell {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 18px;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--panel);
+        padding: 14px 16px;
+      }
+      .title {
+        font-weight: 700;
+        font-size: 1.25rem;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .top a {
+        color: var(--teal);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .grid {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: 390px 1fr;
+        gap: 14px;
+      }
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--panel);
+      }
+      .form {
+        padding: 14px;
+      }
+      .label {
+        font-size: 0.74rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 5px;
+      }
+      .field {
+        margin-bottom: 10px;
+      }
+      input,
+      select,
+      textarea,
+      button {
+        font: inherit;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.17);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 8px 10px;
+      }
+      textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+      .two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        background: rgba(0, 0, 0, 0.2);
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, var(--teal), var(--purple));
+        color: #051319;
+        border: none;
+        font-weight: 700;
+      }
+      .status {
+        font-family: "IBM Plex Mono", monospace;
+        color: var(--muted);
+        font-size: 0.75rem;
+        margin-top: 6px;
+      }
+      .main {
+        padding: 14px;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .kpi {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 9px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .kpi .k {
+        color: var(--muted);
+        font-size: 0.73rem;
+      }
+      .kpi .v {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      .table-wrap {
+        overflow: auto;
+      }
+      table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 8px 6px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        color: var(--muted);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      td {
+        font-size: 0.82rem;
+        color: #cfe2ee;
+      }
+      .badge {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 2px 9px;
+        font-size: 0.67rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+      }
+      .st-applied {
+        background: rgba(45, 212, 191, 0.15);
+        color: var(--teal);
+      }
+      .st-screening {
+        background: rgba(167, 139, 250, 0.15);
+        color: var(--purple);
+      }
+      .st-interview,
+      .st-offer {
+        background: rgba(74, 222, 128, 0.16);
+        color: var(--green);
+      }
+      .st-assessment {
+        background: rgba(251, 191, 36, 0.16);
+        color: var(--amber);
+      }
+      .st-rejected,
+      .st-withdrawn {
+        background: rgba(251, 113, 133, 0.16);
+        color: var(--rose);
+      }
+      .row-actions {
+        display: flex;
+        gap: 6px;
+      }
+      .empty {
+        color: var(--muted);
+        text-align: center;
+        padding: 14px;
+      }
+      @media (max-width: 1050px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .kpis {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="top">
+        <div>
+          <div class="title">Applications Tracker</div>
+          <div class="sub">Add, edit, and delete entries in <code>applications.json</code> from this page.</div>
+        </div>
+        <a href="/counseller">Back to Counseller</a>
+      </div>
+
+      <div class="grid">
+        <section class="card form">
+          <form id="appForm">
+            <div class="field">
+              <div class="label">Company</div>
+              <input id="company" required />
+            </div>
+            <div class="field">
+              <div class="label">Role</div>
+              <input id="role" required />
+            </div>
+            <div class="field two">
+              <div>
+                <div class="label">Location</div>
+                <input id="location" />
+              </div>
+              <div>
+                <div class="label">Status</div>
+                <select id="status">
+                  <option>applied</option>
+                  <option>screening</option>
+                  <option>interview</option>
+                  <option>assessment</option>
+                  <option>offer</option>
+                  <option>rejected</option>
+                  <option>withdrawn</option>
+                </select>
+              </div>
+            </div>
+            <div class="field two">
+              <div>
+                <div class="label">Date Applied</div>
+                <input id="date_applied" type="date" />
+              </div>
+              <div>
+                <div class="label">Follow Up Date</div>
+                <input id="follow_up_date" type="date" />
+              </div>
+            </div>
+            <div class="field two">
+              <div>
+                <div class="label">Source</div>
+                <input id="source" placeholder="LinkedIn / referral / company site" />
+              </div>
+              <div>
+                <div class="label">Resume Version</div>
+                <input id="resume_version" placeholder="v1-bio / v2-compbio" />
+              </div>
+            </div>
+            <div class="field two">
+              <div>
+                <div class="label">Contact Person</div>
+                <input id="contact_person" />
+              </div>
+              <div>
+                <div class="label">Contact Email</div>
+                <input id="contact_email" type="email" />
+              </div>
+            </div>
+            <div class="field two">
+              <div>
+                <div class="label">Salary Range</div>
+                <input id="salary_range" />
+              </div>
+              <div>
+                <div class="label">Job URL</div>
+                <input id="job_url" />
+              </div>
+            </div>
+            <div class="field">
+              <div class="label">Notes</div>
+              <textarea id="notes"></textarea>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary" type="submit" id="saveBtn">Add Application</button>
+              <button class="btn" type="button" id="cancelEditBtn" style="display: none">Cancel Edit</button>
+            </div>
+            <div class="status" id="formStatus">Ready.</div>
+          </form>
+        </section>
+
+        <section class="card main">
+          <div class="kpis">
+            <div class="kpi"><div class="k">Total</div><div class="v" id="kTotal">0</div></div>
+            <div class="kpi"><div class="k">Active</div><div class="v" id="kActive">0</div></div>
+            <div class="kpi"><div class="k">Offers</div><div class="v" id="kOffers">0</div></div>
+            <div class="kpi"><div class="k">Rejected</div><div class="v" id="kRejected">0</div></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Applied</th>
+                  <th>Company</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Follow Up</th>
+                  <th>Source</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("appForm");
+      const rowsEl = document.getElementById("rows");
+      const saveBtn = document.getElementById("saveBtn");
+      const cancelEditBtn = document.getElementById("cancelEditBtn");
+      const formStatus = document.getElementById("formStatus");
+      let applications = [];
+      let editingId = "";
+
+      function getField(id) {
+        return document.getElementById(id).value.trim();
+      }
+
+      function setField(id, value) {
+        document.getElementById(id).value = value || "";
+      }
+
+      function formPayload() {
+        return {
+          company: getField("company"),
+          role: getField("role"),
+          location: getField("location"),
+          date_applied: getField("date_applied"),
+          status: getField("status") || "applied",
+          source: getField("source"),
+          contact_person: getField("contact_person"),
+          contact_email: getField("contact_email"),
+          resume_version: getField("resume_version"),
+          job_url: getField("job_url"),
+          follow_up_date: getField("follow_up_date"),
+          salary_range: getField("salary_range"),
+          notes: getField("notes")
+        };
+      }
+
+      function resetForm() {
+        form.reset();
+        editingId = "";
+        saveBtn.textContent = "Add Application";
+        cancelEditBtn.style.display = "none";
+      }
+
+      function formatDate(value) {
+        if (!value) return "—";
+        const d = new Date(`${value}T00:00:00`);
+        if (Number.isNaN(d.getTime())) return value;
+        return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+      }
+
+      function badgeClass(status) {
+        return `st-${status || "applied"}`;
+      }
+
+      function renderKpis() {
+        const total = applications.length;
+        const active = applications.filter((a) => ["screening", "interview", "assessment"].includes(a.status)).length;
+        const offers = applications.filter((a) => a.status === "offer").length;
+        const rejected = applications.filter((a) => a.status === "rejected").length;
+        document.getElementById("kTotal").textContent = total;
+        document.getElementById("kActive").textContent = active;
+        document.getElementById("kOffers").textContent = offers;
+        document.getElementById("kRejected").textContent = rejected;
+      }
+
+      function renderRows() {
+        if (!applications.length) {
+          rowsEl.innerHTML = '<tr><td class="empty" colspan="8">No applications yet. Add your first one from the form.</td></tr>';
+          renderKpis();
+          return;
+        }
+
+        const sorted = [...applications].sort((a, b) => String(b.date_applied || "").localeCompare(String(a.date_applied || "")));
+        rowsEl.innerHTML = sorted
+          .map(
+            (app) => `
+            <tr>
+              <td>${formatDate(app.date_applied)}</td>
+              <td>${escapeHtml(app.company)}</td>
+              <td>${escapeHtml(app.role)}</td>
+              <td><span class="badge ${badgeClass(app.status)}">${escapeHtml(app.status || "applied")}</span></td>
+              <td>${formatDate(app.follow_up_date)}</td>
+              <td>${escapeHtml(app.source || "—")}</td>
+              <td>${escapeHtml((app.notes || "").slice(0, 100) || "—")}</td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn" onclick="editApp('${app.id}')">Edit</button>
+                  <button class="btn" onclick="deleteApp('${app.id}')">Delete</button>
+                </div>
+              </td>
+            </tr>
+          `
+          )
+          .join("");
+
+        renderKpis();
+      }
+
+      function escapeHtml(text) {
+        return String(text || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      async function loadApplications() {
+        const response = await fetch("/api/applications", { cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Failed to load applications");
+        applications = Array.isArray(data.applications) ? data.applications : [];
+        renderRows();
+      }
+
+      window.editApp = function editApp(id) {
+        const app = applications.find((entry) => entry.id === id);
+        if (!app) return;
+        editingId = id;
+        setField("company", app.company);
+        setField("role", app.role);
+        setField("location", app.location);
+        setField("date_applied", app.date_applied);
+        setField("status", app.status);
+        setField("source", app.source);
+        setField("contact_person", app.contact_person);
+        setField("contact_email", app.contact_email);
+        setField("resume_version", app.resume_version);
+        setField("job_url", app.job_url);
+        setField("follow_up_date", app.follow_up_date);
+        setField("salary_range", app.salary_range);
+        setField("notes", app.notes);
+        saveBtn.textContent = "Update Application";
+        cancelEditBtn.style.display = "inline-block";
+        formStatus.textContent = "Editing selected application.";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
+      window.deleteApp = async function deleteApp(id) {
+        const app = applications.find((entry) => entry.id === id);
+        if (!app) return;
+        if (!window.confirm(`Delete ${app.company} - ${app.role}?`)) return;
+        const response = await fetch(`/api/applications/${encodeURIComponent(id)}`, { method: "DELETE" });
+        const data = await response.json();
+        if (!response.ok) {
+          formStatus.textContent = `Delete failed: ${data.error || "Unknown error"}`;
+          return;
+        }
+        formStatus.textContent = "Deleted application.";
+        await loadApplications();
+      };
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const payload = formPayload();
+        if (!payload.company || !payload.role) {
+          formStatus.textContent = "Company and role are required.";
+          return;
+        }
+
+        const isEdit = Boolean(editingId);
+        const url = isEdit ? `/api/applications/${encodeURIComponent(editingId)}` : "/api/applications";
+        const method = isEdit ? "PUT" : "POST";
+        const response = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          formStatus.textContent = `Save failed: ${data.error || "Unknown error"}`;
+          return;
+        }
+
+        formStatus.textContent = isEdit ? "Application updated." : "Application added.";
+        resetForm();
+        await loadApplications();
+      });
+
+      cancelEditBtn.addEventListener("click", () => {
+        resetForm();
+        formStatus.textContent = "Edit canceled.";
+      });
+
+      async function init() {
+        try {
+          await loadApplications();
+          formStatus.textContent = "Ready.";
+        } catch (err) {
+          formStatus.textContent = `Load failed: ${err.message}`;
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
